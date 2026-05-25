@@ -1,7 +1,7 @@
 from PyQt6.QtWidgets import (
     QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QLabel,
     QPushButton, QStackedWidget, QScrollArea, QFrame, QFileDialog,
-    QLineEdit, QTextEdit, QMessageBox, QFormLayout, QComboBox,
+    QLineEdit, QTextEdit, QFormLayout, QComboBox,
     QDoubleSpinBox, QCheckBox
 )
 from PyQt6.QtCore import Qt, QTimer, pyqtSignal
@@ -13,7 +13,8 @@ from database.models import (
 )
 from ui.styles import (
     C_SIDEBAR_BG, C_CONTENT_BG, C_CARD_BG, C_BORDER, C_TEXT,
-    C_TEXT_MUTED, C_PRIMARY, NAV_BTN_STYLE, C_SUCCESS
+    C_TEXT_MUTED, C_PRIMARY, NAV_BTN_STYLE, C_SUCCESS,
+    show_info, show_warning, show_question
 )
 from ui.carrier.company_profile_dialog import CompanyProfileDialog
 from ui.carrier.available_orders_window import AvailableOrdersWindow
@@ -71,16 +72,33 @@ class CarrierOrdersWindow(QWidget):
         hdr.setProperty("heading", "true")
         hdr_row.addWidget(hdr)
         hdr_row.addStretch()
-        btn_r = QPushButton("Обновить")
-        btn_r.setProperty("cls", "secondary")
-        btn_r.setFixedSize(110, 36)
+        btn_r = QPushButton("🔄  Обновить")
+        btn_r.setFixedSize(140, 40)
+        btn_r.setStyleSheet(
+            "QPushButton { background: transparent; color: #2563EB; border: 2px solid #2563EB; "
+            "border-radius: 8px; font-size: 11pt; font-weight: 600; padding: 0 12px; }"
+            "QPushButton:hover { background: #EFF6FF; }"
+        )
         btn_r.clicked.connect(self._load)
         hdr_row.addWidget(btn_r)
         root.addLayout(hdr_row)
 
+        _cmb_sty = (
+            "QComboBox { background: #FFFFFF; border: 2px solid #CBD5E1; border-radius: 8px; "
+            "color: #0F172A; padding: 6px 12px; font-size: 11pt; }"
+            "QComboBox:focus { border-color: #2563EB; background: #EFF6FF; }"
+            "QComboBox::drop-down { border: none; width: 26px; background: transparent; }"
+            "QComboBox QAbstractItemView { background: #FFFFFF; color: #0F172A; "
+            "border: 1.5px solid #CBD5E1; selection-background-color: #EFF6FF; "
+            "selection-color: #2563EB; font-size: 11pt; outline: none; }"
+            "QComboBox QAbstractItemView::item { color: #0F172A; padding: 8px 12px; min-height: 28px; }"
+            "QComboBox QAbstractItemView::item:selected { background: #EFF6FF; color: #2563EB; }"
+        )
+
         self.cmb = QComboBox()
         self.cmb.addItems(["Все", "В работе", "Завершённые"])
-        self.cmb.setFixedSize(150, 36)
+        self.cmb.setFixedSize(180, 40)
+        self.cmb.setStyleSheet(_cmb_sty)
         self.cmb.currentIndexChanged.connect(self._filter)
         root.addWidget(self.cmb, alignment=Qt.AlignmentFlag.AlignRight)
 
@@ -179,7 +197,7 @@ class CarrierOrdersWindow(QWidget):
         scroll.setStyleSheet("background: transparent; border: none;")
 
         w = QWidget()
-        w.setStyleSheet("background: transparent;")
+        w.setStyleSheet(f"background: {C_CONTENT_BG};")
         wl = QVBoxLayout(w)
         wl.setContentsMargins(24, 24, 24, 24)
         wl.setSpacing(16)
@@ -191,7 +209,7 @@ class CarrierOrdersWindow(QWidget):
         if o.get("status") == "in_progress":
             prog_frame = QFrame()
             prog_frame.setStyleSheet(
-                f"QFrame {{ background: {C_CARD_BG}; border: 1.5px solid {C_BORDER}; border-radius: 12px; }} QLabel {{ border: none; background: transparent; }}"
+                f"QFrame {{ background: {C_CARD_BG}; border: 1.5px solid {C_BORDER}; border-radius: 12px; }} QLabel {{ border: none; background: transparent; color: {C_TEXT}; }}"
             )
             pfl = QVBoxLayout(prog_frame)
             pfl.setContentsMargins(16, 14, 16, 14)
@@ -202,26 +220,26 @@ class CarrierOrdersWindow(QWidget):
 
         # Title
         title_lbl = QLabel(o.get("title", ""))
-        title_lbl.setStyleSheet(f"font-size: 15pt; font-weight: 800; color: {C_TEXT};")
+        title_lbl.setStyleSheet(f"font-size: 17pt; font-weight: 800; color: {C_TEXT};")
         title_lbl.setWordWrap(True)
         wl.addWidget(title_lbl)
 
         # Details card
         detail_card = QFrame()
         detail_card.setStyleSheet(
-            f"QFrame {{ background: {C_CARD_BG}; border: 1.5px solid {C_BORDER}; border-radius: 12px; }} QLabel {{ border: none; background: transparent; }}"
+            f"QFrame {{ background: {C_CARD_BG}; border: 1.5px solid {C_BORDER}; border-radius: 12px; }} QLabel {{ border: none; background: transparent; color: {C_TEXT}; }}"
         )
         dcl = QVBoxLayout(detail_card)
-        dcl.setContentsMargins(20, 16, 20, 16)
-        dcl.setSpacing(10)
+        dcl.setContentsMargins(20, 18, 20, 18)
+        dcl.setSpacing(12)
 
         def row(label: str, value: str):
             r = QHBoxLayout()
             lb = QLabel(label + ":")
-            lb.setStyleSheet(f"color: {C_TEXT_MUTED}; font-size: 9pt; font-weight: 600;")
-            lb.setFixedWidth(160)
+            lb.setStyleSheet(f"color: {C_TEXT_MUTED}; font-size: 11pt; font-weight: 600;")
+            lb.setFixedWidth(190)
             vl = QLabel(value or "—")
-            vl.setStyleSheet(f"color: {C_TEXT}; font-size: 10pt;")
+            vl.setStyleSheet(f"color: {C_TEXT}; font-size: 12pt;")
             vl.setWordWrap(True)
             r.addWidget(lb)
             r.addWidget(vl)
@@ -261,18 +279,19 @@ class CarrierOrdersWindow(QWidget):
             cgl.setContentsMargins(16, 12, 16, 12)
             cgl.addWidget(_cow_mlbl("Комментарий заказчика"))
             cl = QLabel(o.get("comment", ""))
+            cl.setStyleSheet(f"color: {C_TEXT}; font-size: 12pt; background: transparent;")
             cl.setWordWrap(True)
             cgl.addWidget(cl)
             wl.addWidget(cf)
 
         if o.get("special_requirements"):
             sf = QFrame()
-            sf.setStyleSheet("QFrame { background: #2D2006; border: 1.5px solid #78350F; border-radius: 10px; } QLabel { border: none; background: transparent; }")
+            sf.setStyleSheet("QFrame { background: #FFFBEB; border: 1.5px solid #D97706; border-radius: 10px; } QLabel { border: none; background: transparent; }")
             srl = QVBoxLayout(sf)
             srl.setContentsMargins(16, 12, 16, 12)
             srl.addWidget(_cow_mlbl("⚠ Специальные требования"))
             sl = QLabel(o.get("special_requirements", ""))
-            sl.setStyleSheet("color: #FCD34D;")
+            sl.setStyleSheet("color: #92400E; font-size: 11pt; background: transparent;")
             sl.setWordWrap(True)
             srl.addWidget(sl)
             wl.addWidget(sf)
@@ -284,7 +303,7 @@ class CarrierOrdersWindow(QWidget):
             if progress == "waiting":
                 veh_grp = QFrame()
                 veh_grp.setStyleSheet(
-                    f"QFrame {{ background: {C_CARD_BG}; border: 1.5px solid {C_BORDER}; border-radius: 12px; }} QLabel {{ border: none; background: transparent; }}"
+                    f"QFrame {{ background: {C_CARD_BG}; border: 1.5px solid {C_BORDER}; border-radius: 12px; }} QLabel {{ border: none; background: transparent; color: {C_TEXT}; }}"
                 )
                 vgl = QVBoxLayout(veh_grp)
                 vgl.setContentsMargins(20, 16, 20, 16)
@@ -295,18 +314,22 @@ class CarrierOrdersWindow(QWidget):
                 if fleet_trucks:
                     fleet_lbl = QLabel("Выбрать из автопарка:")
                     fleet_lbl.setStyleSheet(
-                        f"color: {C_TEXT_MUTED}; font-size: 9pt; font-weight: 600;"
+                        f"color: {C_TEXT_MUTED}; font-size: 11pt; font-weight: 600;"
                     )
                     vgl.addWidget(fleet_lbl)
 
                     self.cmb_fleet = QComboBox()
-                    self.cmb_fleet.setFixedHeight(40)
+                    self.cmb_fleet.setFixedHeight(42)
                     self.cmb_fleet.setStyleSheet(
-                        "QComboBox { background: #1A2540; border: 2px solid #3B82F6; border-radius: 8px; "
-                        "color: #F1F5F9; padding: 4px 10px; font-size: 10pt; }"
-                        "QComboBox:focus { border-color: #60A5FA; }"
-                        "QComboBox::drop-down { border: none; width: 20px; }"
-                        "QComboBox QAbstractItemView { background: #1E293B; color: #F1F5F9; border: 1px solid #3B82F6; }"
+                        "QComboBox { background: #FFFFFF; border: 2px solid #CBD5E1; border-radius: 8px; "
+                        "color: #0F172A; padding: 6px 12px; font-size: 11pt; }"
+                        "QComboBox:focus { border-color: #2563EB; background: #EFF6FF; }"
+                        "QComboBox::drop-down { border: none; width: 26px; background: transparent; }"
+                        "QComboBox QAbstractItemView { background: #FFFFFF; color: #0F172A; "
+                        "border: 1.5px solid #CBD5E1; selection-background-color: #EFF6FF; "
+                        "selection-color: #2563EB; font-size: 11pt; outline: none; }"
+                        "QComboBox QAbstractItemView::item { color: #0F172A; padding: 8px 12px; min-height: 28px; }"
+                        "QComboBox QAbstractItemView::item:selected { background: #EFF6FF; color: #2563EB; }"
                     )
                     self.cmb_fleet.addItem("— Выбрать ТС из автопарка —", None)
                     for t in fleet_trucks:
@@ -319,9 +342,9 @@ class CarrierOrdersWindow(QWidget):
                     vgl.addWidget(self.cmb_fleet)
 
                 _inp_sty = (
-                    "QLineEdit { background: #1A2540; border: 2px solid #3B82F6; border-radius: 8px; "
-                    "color: #F1F5F9; padding: 4px 10px; font-size: 10pt; }"
-                    "QLineEdit:focus { border-color: #60A5FA; background: #1E3050; }"
+                    "QLineEdit { background: #FFFFFF; border: 2px solid #CBD5E1; border-radius: 8px; "
+                    "color: #0F172A; padding: 4px 12px; font-size: 11pt; }"
+                    "QLineEdit:focus { border-color: #2563EB; border-width: 2px; background: #EFF6FF; }"
                 )
 
                 fl = QFormLayout()
@@ -329,28 +352,32 @@ class CarrierOrdersWindow(QWidget):
 
                 self.inp_driver = QLineEdit()
                 self.inp_driver.setPlaceholderText("Иванов Иван Иванович")
-                self.inp_driver.setFixedHeight(40)
+                self.inp_driver.setFixedHeight(42)
                 self.inp_driver.setStyleSheet(_inp_sty)
                 fl.addRow("Водитель *", self.inp_driver)
 
                 self.inp_truck_num = QLineEdit()
                 self.inp_truck_num.setPlaceholderText("А123ВС77")
-                self.inp_truck_num.setFixedHeight(40)
+                self.inp_truck_num.setFixedHeight(42)
                 self.inp_truck_num.setStyleSheet(_inp_sty)
                 fl.addRow("Номер ТС *", self.inp_truck_num)
 
                 self.inp_truck_model = QLineEdit()
                 self.inp_truck_model.setPlaceholderText("МАЗ-4371, КАМАЗ-5490...")
-                self.inp_truck_model.setFixedHeight(40)
+                self.inp_truck_model.setFixedHeight(42)
                 self.inp_truck_model.setStyleSheet(_inp_sty)
                 fl.addRow("Модель ТС", self.inp_truck_model)
                 vgl.addLayout(fl)
 
                 btn_row = QHBoxLayout()
                 btn_row.addStretch()
-                btn_assign = QPushButton("Назначить транспорт")
-                btn_assign.setProperty("cls", "success")
-                btn_assign.setFixedHeight(40)
+                btn_assign = QPushButton("✅ Назначить транспорт")
+                btn_assign.setFixedSize(220, 44)
+                btn_assign.setStyleSheet(
+                    "QPushButton { background: #16A34A; color: white; border: none; "
+                    "border-radius: 8px; font-size: 11pt; font-weight: 700; }"
+                    "QPushButton:hover { background: #15803D; }"
+                )
                 btn_assign.clicked.connect(lambda: self._assign_vehicle(order))
                 btn_row.addWidget(btn_assign)
                 vgl.addLayout(btn_row)
@@ -375,7 +402,7 @@ class CarrierOrdersWindow(QWidget):
                 if progress == "vehicle_assigned":
                     box = QFrame()
                     box.setStyleSheet(
-                        "background: #1E3A5F; border: 1.5px solid #2563EB; border-radius: 12px;"
+                        "background: #EFF6FF; border: 1.5px solid #2563EB; border-radius: 12px;"
                     )
                     bl = QVBoxLayout(box)
                     bl.setContentsMargins(18, 14, 18, 14)
@@ -384,12 +411,16 @@ class CarrierOrdersWindow(QWidget):
                         "🚛 Транспорт назначен. После погрузки нажмите «Груз отправлен», "
                         "затем заказчик подтвердит отправку."
                     )
-                    info.setStyleSheet("color: #93C5FD; font-size: 10pt;")
+                    info.setStyleSheet("color: #1D4ED8; font-size: 11pt; background: transparent;")
                     info.setWordWrap(True)
                     bl.addWidget(info)
                     btn = QPushButton("📦 Отметить: груз отправлен")
-                    btn.setProperty("cls", "secondary")
-                    btn.setFixedHeight(40)
+                    btn.setFixedHeight(44)
+                    btn.setStyleSheet(
+                        "QPushButton { background: transparent; color: #2563EB; border: 2px solid #2563EB; "
+                        "border-radius: 8px; font-size: 11pt; font-weight: 600; padding: 0 16px; }"
+                        "QPushButton:hover { background: #EFF6FF; }"
+                    )
                     btn.clicked.connect(lambda: self._mark_dispatched(order))
                     bl.addWidget(btn)
                     wl.addWidget(box)
@@ -397,7 +428,7 @@ class CarrierOrdersWindow(QWidget):
                 elif progress in ("dispatched", "in_transit"):
                     box = QFrame()
                     box.setStyleSheet(
-                        "background: #0C2340; border: 1.5px solid #1D4ED8; border-radius: 12px;"
+                        "background: #EFF6FF; border: 1.5px solid #3B82F6; border-radius: 12px;"
                     )
                     bl = QVBoxLayout(box)
                     bl.setContentsMargins(18, 14, 18, 14)
@@ -405,12 +436,16 @@ class CarrierOrdersWindow(QWidget):
                     info = QLabel(
                         "🚚 Груз в пути. По прибытии к месту назначения нажмите «Прибыл»."
                     )
-                    info.setStyleSheet("color: #93C5FD; font-size: 10pt;")
+                    info.setStyleSheet("color: #1D4ED8; font-size: 11pt; background: transparent;")
                     info.setWordWrap(True)
                     bl.addWidget(info)
                     btn = QPushButton("📍 Отметить: прибыл к месту назначения")
-                    btn.setProperty("cls", "secondary")
-                    btn.setFixedHeight(40)
+                    btn.setFixedHeight(44)
+                    btn.setStyleSheet(
+                        "QPushButton { background: transparent; color: #2563EB; border: 2px solid #2563EB; "
+                        "border-radius: 8px; font-size: 11pt; font-weight: 600; padding: 0 16px; }"
+                        "QPushButton:hover { background: #EFF6FF; }"
+                    )
                     btn.clicked.connect(lambda: self._mark_arrived(order))
                     bl.addWidget(btn)
                     wl.addWidget(box)
@@ -420,8 +455,8 @@ class CarrierOrdersWindow(QWidget):
                         "📍 Вы отметили прибытие. Ожидайте подтверждения заказчика."
                     )
                     info.setStyleSheet(
-                        "QFrame { background: #14532D; border: 1.5px solid #16A34A; border-radius: 10px; } QLabel { border: none; background: transparent; }"
-                        "color: #86EFAC; font-size: 10pt; padding: 12px 16px;"
+                        "background: #F0FDF4; border: 1.5px solid #16A34A; border-radius: 10px; "
+                        "color: #15803D; font-size: 11pt; padding: 12px 16px;"
                     )
                     info.setWordWrap(True)
                     wl.addWidget(info)
@@ -449,7 +484,7 @@ class CarrierOrdersWindow(QWidget):
         truck_model = self.inp_truck_model.text().strip()
 
         if not driver or not truck_num:
-            QMessageBox.warning(self, "Ошибка", "Введите имя водителя и номер ТС")
+            show_warning(self, "Ошибка", "Введите имя водителя и номер ТС")
             return
 
         OrderModel.assign_vehicle(order["id"], driver, truck_num, truck_model)
@@ -459,7 +494,7 @@ class CarrierOrdersWindow(QWidget):
             f"Перевозчик назначил транспорт на заявку «{order.get('title','')}»: "
             f"водитель {driver}, ТС {truck_num}."
         )
-        QMessageBox.information(
+        show_info(
             self, "Готово",
             "Транспорт назначен. Заказчик получил уведомление.\n"
             "После погрузки отметьте отправку груза."
@@ -474,7 +509,7 @@ class CarrierOrdersWindow(QWidget):
             f"Перевозчик отметил отправку груза по заявке «{order.get('title','')}». "
             "Пожалуйста, подтвердите отправку в системе."
         )
-        QMessageBox.information(
+        show_info(
             self, "Готово",
             "Отправка груза отмечена. Заказчик получил уведомление."
         )
@@ -488,7 +523,7 @@ class CarrierOrdersWindow(QWidget):
             f"Перевозчик отметил прибытие груза по заявке «{order.get('title','')}». "
             "Пожалуйста, подтвердите получение в системе."
         )
-        QMessageBox.information(
+        show_info(
             self, "Готово",
             "Прибытие отмечено. Заказчик должен подтвердить получение груза."
         )
@@ -507,7 +542,7 @@ class CarrierOrdersWindow(QWidget):
 def _cow_mlbl(text: str) -> QLabel:
     lbl = QLabel(text)
     lbl.setStyleSheet(
-        "color: #64748B; font-size: 9pt; font-weight: 700; text-transform: uppercase; "
+        "color: #64748B; font-size: 10pt; font-weight: 700; text-transform: uppercase; "
         "background: transparent; border: none;"
     )
     return lbl
@@ -516,7 +551,8 @@ def _cow_mlbl(text: str) -> QLabel:
 def _cow_card() -> QFrame:
     f = QFrame()
     f.setStyleSheet(
-        f"QFrame {{ background: {C_CARD_BG}; border: 1.5px solid {C_BORDER}; border-radius: 12px; }} QLabel {{ border: none; background: transparent; }}"
+        f"QFrame {{ background: {C_CARD_BG}; border: 1.5px solid {C_BORDER}; border-radius: 12px; }}"
+        f" QLabel {{ border: none; background: transparent; color: {C_TEXT}; }}"
     )
     return f
 
@@ -527,10 +563,10 @@ def _cow_info_row(label: str, value: str) -> QWidget:
     hl = QHBoxLayout(w)
     hl.setContentsMargins(0, 0, 0, 0)
     lb = QLabel(label + ":")
-    lb.setStyleSheet(f"color: {C_TEXT_MUTED}; font-size: 9pt; font-weight: 600;")
-    lb.setFixedWidth(100)
+    lb.setStyleSheet(f"color: {C_TEXT_MUTED}; font-size: 11pt; font-weight: 600;")
+    lb.setFixedWidth(130)
     vl = QLabel(value)
-    vl.setStyleSheet(f"color: {C_TEXT}; font-size: 10pt;")
+    vl.setStyleSheet(f"color: {C_TEXT}; font-size: 12pt;")
     hl.addWidget(lb)
     hl.addWidget(vl)
     hl.addStretch()
@@ -567,13 +603,13 @@ class CarrierDashboard(QMainWindow):
         la = QHBoxLayout(logo_area)
         la.setContentsMargins(8, 0, 8, 0)
         logo_lbl = QLabel("🚛 FreightExchange")
-        logo_lbl.setStyleSheet("color: white; font-size: 13pt; font-weight: 800;")
+        logo_lbl.setStyleSheet("color: #0F172A; font-size: 13pt; font-weight: 800;")
         la.addWidget(logo_lbl)
         sb.addWidget(logo_area)
 
         user_card = QFrame()
         user_card.setStyleSheet(
-            "background: rgba(255,255,255,0.06); border-radius: 10px; border: none;"
+            "background: #F8FAFC; border-radius: 10px; border: 1px solid #E2E8F0;"
         )
         ucl = QVBoxLayout(user_card)
         ucl.setContentsMargins(12, 12, 12, 10)
@@ -582,7 +618,7 @@ class CarrierDashboard(QMainWindow):
         self.avatar_lbl = QLabel("🏢")
         self.avatar_lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.avatar_lbl.setStyleSheet(
-            "font-size: 26pt; background: rgba(255,255,255,0.1); "
+            "font-size: 26pt; background: #E2E8F0; "
             "border-radius: 28px; min-width: 56px; min-height: 56px;"
         )
         self.avatar_lbl.setFixedSize(56, 56)
@@ -595,7 +631,7 @@ class CarrierDashboard(QMainWindow):
         )
         self.name_lbl = QLabel(disp_name)
         self.name_lbl.setStyleSheet(
-            "color: #F1F5F9; font-weight: 600; font-size: 10pt; "
+            "color: #0F172A; font-weight: 600; font-size: 10pt; "
             "background: transparent; border: none;"
         )
         self.name_lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -612,7 +648,7 @@ class CarrierDashboard(QMainWindow):
         # Balance
         self._bal_lbl = QLabel(fmt_money(self.user.get("balance", 0)))
         self._bal_lbl.setStyleSheet(
-            "color: #4ADE80; font-size: 9pt; font-weight: 700; "
+            "color: #16A34A; font-size: 9pt; font-weight: 700; "
             "background: transparent; border: none;"
         )
         self._bal_lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -620,7 +656,7 @@ class CarrierDashboard(QMainWindow):
 
         btn_topup = QPushButton("+ Пополнить")
         btn_topup.setStyleSheet(
-            "background: rgba(74,222,128,0.15); color: #4ADE80; border: 1px solid #4ADE80; "
+            "background: #F0FDF4; color: #16A34A; border: 1px solid #16A34A; "
             "border-radius: 6px; padding: 4px 10px; font-size: 8pt; font-weight: 600;"
         )
         btn_topup.setFixedHeight(26)
@@ -721,7 +757,7 @@ class CarrierDashboard(QMainWindow):
         if not company:
             banner = QFrame()
             banner.setStyleSheet(
-                "QFrame { background: #2D2006; border: 1.5px solid #78350F; border-radius: 12px; } QLabel { border: none; background: transparent; }"
+                "QFrame { background: #FFFBEB; border: 1.5px solid #D97706; border-radius: 12px; } QLabel { border: none; background: transparent; }"
             )
             bl = QHBoxLayout(banner)
             bl.setContentsMargins(20, 16, 20, 16)
@@ -754,15 +790,15 @@ class CarrierDashboard(QMainWindow):
             card = QFrame()
             card.setStyleSheet(
                 f"QFrame {{ background: {C_CARD_BG}; border: 2px solid {color}; border-radius: 12px; }} "
-                f"QLabel {{ border: none; background: transparent; }}"
+                f"QLabel {{ border: none; background: transparent; color: {C_TEXT}; }}"
             )
             cl = QVBoxLayout(card)
-            cl.setContentsMargins(20, 18, 20, 18)
-            cl.setSpacing(4)
+            cl.setContentsMargins(24, 22, 24, 22)
+            cl.setSpacing(6)
             vl = QLabel(val)
-            vl.setStyleSheet(f"font-size: 30pt; font-weight: 800; color: {color};")
+            vl.setStyleSheet(f"font-size: 38pt; font-weight: 800; color: {color};")
             ll = QLabel(lbl_txt)
-            ll.setStyleSheet(f"color: {C_TEXT_MUTED}; font-size: 10pt; font-weight: 600;")
+            ll.setStyleSheet(f"color: {C_TEXT_MUTED}; font-size: 12pt; font-weight: 600;")
             cl.addWidget(vl)
             cl.addWidget(ll)
             self._home_stat_refs.append(vl)
@@ -832,22 +868,22 @@ class CarrierDashboard(QMainWindow):
 
     def _action_card(self, icon: str, title: str, desc: str, color: str) -> QPushButton:
         btn = QPushButton()
-        btn.setFixedHeight(110)
+        btn.setFixedHeight(130)
         btn.setStyleSheet(f"""
             QPushButton {{
                 background: {C_CARD_BG};
                 border: 1.5px solid {C_BORDER};
-                border-radius: 12px;
+                border-radius: 14px;
                 text-align: left;
             }}
             QPushButton:hover {{ border-color: {color}; }}
         """)
         inner = QVBoxLayout(btn)
-        inner.setContentsMargins(16, 14, 16, 14)
-        inner.setSpacing(6)
-        inner.addWidget(_lbl(icon, f"font-size: 22pt; color: {color}; background: transparent;"))
-        inner.addWidget(_lbl(title, f"font-weight: 700; font-size: 11pt; color: {C_TEXT}; background: transparent;"))
-        inner.addWidget(_lbl(desc, f"color: {C_TEXT_MUTED}; font-size: 8pt; background: transparent;", wrap=True))
+        inner.setContentsMargins(20, 16, 20, 16)
+        inner.setSpacing(8)
+        inner.addWidget(_lbl(icon, f"font-size: 28pt; color: {color}; background: transparent;"))
+        inner.addWidget(_lbl(title, f"font-weight: 700; font-size: 13pt; color: {C_TEXT}; background: transparent;"))
+        inner.addWidget(_lbl(desc, f"color: {C_TEXT_MUTED}; font-size: 10pt; background: transparent;", wrap=True))
         return btn
 
     # ── Company page ──────────────────────────────────────────────
@@ -885,7 +921,7 @@ class CarrierDashboard(QMainWindow):
         if not company:
             empty = QFrame()
             empty.setStyleSheet(
-                f"QFrame {{ background: {C_CARD_BG}; border: 1.5px dashed {C_BORDER}; border-radius: 12px; }} QLabel {{ border: none; background: transparent; }}"
+                f"QFrame {{ background: {C_CARD_BG}; border: 1.5px dashed {C_BORDER}; border-radius: 12px; }} QLabel {{ border: none; background: transparent; color: {C_TEXT}; }}"
             )
             el = QVBoxLayout(empty)
             el.setContentsMargins(40, 50, 40, 50)
@@ -913,7 +949,7 @@ class CarrierDashboard(QMainWindow):
                 for rev in reviews[:5]:
                     rc = QFrame()
                     rc.setStyleSheet(
-                        f"QFrame {{ background: {C_CARD_BG}; border: 1.5px solid {C_BORDER}; border-radius: 10px; }} QLabel {{ border: none; background: transparent; }}"
+                        f"QFrame {{ background: {C_CARD_BG}; border: 1.5px solid {C_BORDER}; border-radius: 10px; }} QLabel {{ border: none; background: transparent; color: {C_TEXT}; }}"
                     )
                     rcl = QVBoxLayout(rc)
                     rcl.setContentsMargins(16, 12, 16, 12)
@@ -999,7 +1035,7 @@ class CarrierDashboard(QMainWindow):
 
         for n in notifs:
             is_read = bool(n["is_read"])
-            bg     = C_CARD_BG if is_read else "#1E3A5F"
+            bg     = C_CARD_BG if is_read else "#EFF6FF"
             border = C_BORDER  if is_read else "#2563EB"
 
             nf = _ClickableFrame()
@@ -1007,7 +1043,7 @@ class CarrierDashboard(QMainWindow):
             nf.setObjectName(oid)
             nf.setStyleSheet(
                 f"#{oid} {{ background: {bg}; border: 1.5px solid {border}; border-radius: 10px; }}"
-                f"#{oid}:hover {{ background: #243447; border: 1.5px solid #3B82F6; }}"
+                f"#{oid}:hover {{ background: #F1F5F9; border: 1.5px solid #3B82F6; }}"
             )
             nf.setCursor(Qt.CursorShape.PointingHandCursor)
             nf.clicked.connect(lambda _=None, nid=n["id"], nt=n["type"]: _on_notif_click(nid, nt))
@@ -1017,20 +1053,20 @@ class CarrierDashboard(QMainWindow):
             nl.setSpacing(12)
 
             ico = QLabel(type_icons.get(n["type"], "🔔"))
-            ico.setStyleSheet("font-size: 20pt; background: transparent;")
-            ico.setFixedSize(36, 36)
+            ico.setStyleSheet("font-size: 24pt; background: transparent;")
+            ico.setFixedSize(44, 44)
             nl.addWidget(ico)
 
             col = QVBoxLayout()
-            col.setSpacing(2)
+            col.setSpacing(4)
             fw = "700" if not is_read else "600"
-            col.addWidget(_lbl(n["title"], f"font-weight: {fw}; color: {C_TEXT}; background: transparent;"))
+            col.addWidget(_lbl(n["title"], f"font-weight: {fw}; font-size: 13pt; color: {C_TEXT}; background: transparent;"))
             if n.get("message"):
                 col.addWidget(_lbl(n["message"],
-                                   f"color: {C_TEXT_MUTED}; font-size: 9pt; background: transparent;",
+                                   f"color: {C_TEXT_MUTED}; font-size: 11pt; background: transparent;",
                                    wrap=True))
             col.addWidget(_lbl(fmt_datetime(n.get("created_at", "")),
-                               f"color: {C_TEXT_MUTED}; font-size: 8pt; background: transparent;"))
+                               f"color: {C_TEXT_MUTED}; font-size: 10pt; background: transparent;"))
             nl.addLayout(col)
             nl.addStretch()
 
@@ -1074,7 +1110,7 @@ class CarrierDashboard(QMainWindow):
 
         prof_card = QFrame()
         prof_card.setStyleSheet(
-            f"QFrame {{ background: {C_CARD_BG}; border: 1.5px solid {C_BORDER}; border-radius: 12px; }} QLabel {{ border: none; background: transparent; }}"
+            f"QFrame {{ background: {C_CARD_BG}; border: 1.5px solid {C_BORDER}; border-radius: 12px; }} QLabel {{ border: none; background: transparent; color: {C_TEXT}; }}"
         )
         pcl = QVBoxLayout(prof_card)
         pcl.setContentsMargins(28, 24, 28, 24)
@@ -1116,31 +1152,31 @@ class CarrierDashboard(QMainWindow):
         pcl.addWidget(sep)
 
         _inp = (
-            "QLineEdit { background: #0F172A; border: 1.5px solid #4B6280; border-radius: 8px; "
-            "color: #F1F5F9; padding: 4px 10px; font-size: 10pt; }"
-            "QLineEdit:focus { border-color: #3B82F6; }"
+            "QLineEdit { background: #FFFFFF; border: 2px solid #CBD5E1; border-radius: 8px; "
+            "color: #0F172A; padding: 4px 12px; font-size: 11pt; }"
+            "QLineEdit:focus { border-color: #2563EB; border-width: 2px; background: #EFF6FF; }"
         )
         _ta = (
-            "QTextEdit { background: #0F172A; border: 1.5px solid #4B6280; border-radius: 8px; "
-            "color: #F1F5F9; padding: 6px 10px; font-size: 10pt; }"
-            "QTextEdit:focus { border-color: #3B82F6; }"
+            "QTextEdit { background: #FFFFFF; border: 2px solid #CBD5E1; border-radius: 8px; "
+            "color: #0F172A; padding: 6px 12px; font-size: 11pt; }"
+            "QTextEdit:focus { border-color: #2563EB; border-width: 2px; }"
         )
         fl = QFormLayout()
         fl.setSpacing(12)
         self.pf_fullname = QLineEdit(self.user.get("full_name", ""))
-        self.pf_fullname.setFixedHeight(38)
+        self.pf_fullname.setFixedHeight(42)
         self.pf_fullname.setStyleSheet(_inp)
         fl.addRow("Полное имя", self.pf_fullname)
         self.pf_phone = QLineEdit(self.user.get("phone", ""))
-        self.pf_phone.setFixedHeight(38)
+        self.pf_phone.setFixedHeight(42)
         self.pf_phone.setStyleSheet(_inp)
         fl.addRow("Телефон", self.pf_phone)
         self.pf_city = QLineEdit(self.user.get("city", ""))
-        self.pf_city.setFixedHeight(38)
+        self.pf_city.setFixedHeight(42)
         self.pf_city.setStyleSheet(_inp)
         fl.addRow("Город", self.pf_city)
         self.pf_bio = QTextEdit(self.user.get("bio", ""))
-        self.pf_bio.setFixedHeight(90)
+        self.pf_bio.setFixedHeight(100)
         self.pf_bio.setPlaceholderText("Расскажите о своей компании...")
         self.pf_bio.setStyleSheet(_ta)
         fl.addRow("О себе", self.pf_bio)
@@ -1157,19 +1193,19 @@ class CarrierDashboard(QMainWindow):
         pw_fl.setSpacing(10)
         self.pf_old_pw = QLineEdit()
         self.pf_old_pw.setEchoMode(QLineEdit.EchoMode.Password)
-        self.pf_old_pw.setFixedHeight(38)
+        self.pf_old_pw.setFixedHeight(42)
         self.pf_old_pw.setPlaceholderText("Введите текущий пароль")
         self.pf_old_pw.setStyleSheet(_inp)
         pw_fl.addRow("Текущий пароль", self.pf_old_pw)
         self.pf_new_pw = QLineEdit()
         self.pf_new_pw.setEchoMode(QLineEdit.EchoMode.Password)
-        self.pf_new_pw.setFixedHeight(38)
+        self.pf_new_pw.setFixedHeight(42)
         self.pf_new_pw.setPlaceholderText("Новый пароль (мин. 6 символов)")
         self.pf_new_pw.setStyleSheet(_inp)
         pw_fl.addRow("Новый пароль", self.pf_new_pw)
         self.pf_new_pw2 = QLineEdit()
         self.pf_new_pw2.setEchoMode(QLineEdit.EchoMode.Password)
-        self.pf_new_pw2.setFixedHeight(38)
+        self.pf_new_pw2.setFixedHeight(42)
         self.pf_new_pw2.setPlaceholderText("Повторите новый пароль")
         self.pf_new_pw2.setStyleSheet(_inp)
         pw_fl.addRow("Подтвердите", self.pf_new_pw2)
@@ -1177,17 +1213,17 @@ class CarrierDashboard(QMainWindow):
 
         btn_row = QHBoxLayout()
         btn_row.addStretch()
-        btn_pw = QPushButton("Сменить пароль")
-        btn_pw.setFixedSize(160, 40)
+        btn_pw = QPushButton("🔒 Сменить пароль")
+        btn_pw.setFixedSize(190, 44)
         btn_pw.setStyleSheet(
             "QPushButton { background: transparent; color: #3B82F6; border: 2px solid #3B82F6; "
-            "border-radius: 8px; font-size: 10pt; font-weight: 600; }"
+            "border-radius: 8px; font-size: 11pt; font-weight: 600; }"
             "QPushButton:hover { background: rgba(59,130,246,0.12); }"
         )
         btn_pw.clicked.connect(self._change_password)
         btn_row.addWidget(btn_pw)
-        btn_save = QPushButton("Сохранить профиль")
-        btn_save.setFixedSize(180, 40)
+        btn_save = QPushButton("💾 Сохранить профиль")
+        btn_save.setFixedSize(210, 44)
         btn_save.setStyleSheet(
             "QPushButton { background: #2563EB; color: white; border: none; "
             "border-radius: 8px; font-size: 10pt; font-weight: 700; }"
@@ -1262,7 +1298,7 @@ class CarrierDashboard(QMainWindow):
 
         card = QFrame()
         card.setStyleSheet(
-            f"QFrame {{ background: {C_CARD_BG}; border: 1.5px solid {C_BORDER}; border-radius: 16px; }} QLabel {{ border: none; background: transparent; }}"
+            f"QFrame {{ background: {C_CARD_BG}; border: 1.5px solid {C_BORDER}; border-radius: 16px; }} QLabel {{ border: none; background: transparent; color: {C_TEXT}; }}"
         )
         card.setMaximumWidth(580)
         card.setMinimumWidth(400)
@@ -1272,7 +1308,7 @@ class CarrierDashboard(QMainWindow):
 
         bal_bg = QFrame()
         bal_bg.setStyleSheet(
-            f"QFrame {{ background: {C_CONTENT_BG}; border: 1.5px solid {C_BORDER}; border-radius: 12px; }} QLabel {{ border: none; background: transparent; }}"
+            f"QFrame {{ background: {C_CONTENT_BG}; border: 1.5px solid {C_BORDER}; border-radius: 12px; }} QLabel {{ border: none; background: transparent; color: {C_TEXT}; }}"
         )
         bfl = QVBoxLayout(bal_bg)
         bfl.setContentsMargins(24, 18, 24, 18)
@@ -1297,9 +1333,10 @@ class CarrierDashboard(QMainWindow):
         for amount in [5000, 10000, 25000, 50000]:
             btn = QPushButton(fmt_money(amount))
             btn.setStyleSheet(
-                "QPushButton { background: #1E3A5F; color: #60A5FA; border: 2px solid #3B82F6; "
-                "border-radius: 10px; font-size: 10pt; font-weight: 700; }"
-                "QPushButton:hover { background: #2563EB; color: white; }"
+                f"QPushButton {{ background: transparent; color: {C_PRIMARY}; "
+                f"border: 2px solid {C_PRIMARY}; border-radius: 10px; "
+                "font-size: 10pt; font-weight: 700; }"
+                "QPushButton:hover { background: rgba(37,99,235,0.1); color: #1D4ED8; }"
             )
             btn.setFixedHeight(48)
             btn.clicked.connect(lambda _, a=amount: self._bal_spn.setValue(a))
@@ -1318,9 +1355,9 @@ class CarrierDashboard(QMainWindow):
         self._bal_spn.setValue(10000)
         self._bal_spn.setFixedHeight(56)
         self._bal_spn.setStyleSheet(
-            "QDoubleSpinBox { background: #1A2540; border: 2px solid #3B82F6; border-radius: 10px; "
-            "color: #F1F5F9; padding: 4px 14px; font-size: 15pt; font-weight: 700; }"
-            "QDoubleSpinBox:focus { border-color: #60A5FA; background: #1E3050; }"
+            "QDoubleSpinBox { background: #FFFFFF; border: 2px solid #2563EB; border-radius: 10px; "
+            "color: #0F172A; padding: 4px 14px; font-size: 15pt; font-weight: 700; }"
+            "QDoubleSpinBox:focus { border-color: #1D4ED8; background: #EFF6FF; }"
             "QDoubleSpinBox::up-button, QDoubleSpinBox::down-button { width: 24px; }"
         )
         cl.addWidget(self._bal_spn)
@@ -1359,9 +1396,9 @@ class CarrierDashboard(QMainWindow):
         self._withdraw_spn.setValue(5000)
         self._withdraw_spn.setFixedHeight(52)
         self._withdraw_spn.setStyleSheet(
-            "QDoubleSpinBox { background: #1A2540; border: 2px solid #22C55E; border-radius: 10px; "
-            "color: #F1F5F9; padding: 4px 14px; font-size: 14pt; font-weight: 700; }"
-            "QDoubleSpinBox:focus { border-color: #86EFAC; background: #1E3050; }"
+            "QDoubleSpinBox { background: #FFFFFF; border: 2px solid #16A34A; border-radius: 10px; "
+            "color: #0F172A; padding: 4px 14px; font-size: 14pt; font-weight: 700; }"
+            "QDoubleSpinBox:focus { border-color: #15803D; background: #F0FDF4; }"
             "QDoubleSpinBox::up-button, QDoubleSpinBox::down-button { width: 24px; }"
         )
         cl.addWidget(self._withdraw_spn)
@@ -1400,7 +1437,7 @@ class CarrierDashboard(QMainWindow):
         self._bal_lbl.setText(fmt_money(new_bal))
         if hasattr(self, "_bal_page_lbl"):
             self._bal_page_lbl.setText(fmt_money(new_bal))
-        QMessageBox.information(
+        show_info(
             self, "Баланс пополнен",
             f"На ваш счёт зачислено {fmt_money(amount)}.\n"
             f"Текущий баланс: {fmt_money(new_bal)}"
@@ -1410,29 +1447,27 @@ class CarrierDashboard(QMainWindow):
     def _do_withdraw(self, amount: float):
         current = UserModel.get_balance(self.user["id"])
         if amount <= 0:
-            QMessageBox.warning(self, "Ошибка", "Введите сумму больше нуля")
+            show_warning(self, "Ошибка", "Введите сумму больше нуля")
             return
         if amount > current:
-            QMessageBox.warning(
+            show_warning(
                 self, "Недостаточно средств",
                 f"На балансе {fmt_money(current)}, а запрошено {fmt_money(amount)}.\n"
                 "Уменьшите сумму вывода."
             )
             return
-        reply = QMessageBox.question(
+        if not show_question(
             self, "Подтверждение вывода",
             f"Вывести {fmt_money(amount)} с баланса?\n"
-            f"Остаток после вывода: {fmt_money(current - amount)}",
-            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
-        )
-        if reply != QMessageBox.StandardButton.Yes:
+            f"Остаток после вывода: {fmt_money(current - amount)}"
+        ):
             return
         new_bal = UserModel.add_balance(self.user["id"], -amount)
         self.user["balance"] = new_bal
         self._bal_lbl.setText(fmt_money(new_bal))
         if hasattr(self, "_bal_page_lbl"):
             self._bal_page_lbl.setText(fmt_money(new_bal))
-        QMessageBox.information(
+        show_info(
             self, "Вывод выполнен",
             f"Выведено {fmt_money(amount)}.\n"
             f"Текущий баланс: {fmt_money(new_bal)}"
@@ -1484,14 +1519,25 @@ class CarrierDashboard(QMainWindow):
 
         notif_card = QFrame()
         notif_card.setStyleSheet(
-            f"QFrame {{ background: {C_CARD_BG}; border: 1.5px solid {C_BORDER}; border-radius: 14px; }} QLabel {{ border: none; background: transparent; }}"
+            f"QFrame {{ background: {C_CARD_BG}; border: 1.5px solid {C_BORDER}; border-radius: 14px; }} QLabel {{ border: none; background: transparent; color: {C_TEXT}; }}"
         )
         ncl = QVBoxLayout(notif_card)
         ncl.setContentsMargins(28, 24, 28, 24)
         ncl.setSpacing(14)
         nc_hdr = QLabel("🔔 Уведомления")
-        nc_hdr.setStyleSheet(f"font-size: 14pt; font-weight: 700; color: {C_TEXT};")
+        nc_hdr.setStyleSheet(f"font-size: 15pt; font-weight: 700; color: {C_TEXT};")
         ncl.addWidget(nc_hdr)
+        nc_desc = QLabel("Выберите, о чём получать уведомления:")
+        nc_desc.setStyleSheet(f"color: {C_TEXT_MUTED}; font-size: 11pt;")
+        ncl.addWidget(nc_desc)
+        _chk_sty = (
+            "QCheckBox { color: #0F172A; font-size: 12pt; background: transparent; "
+            "border: none; spacing: 10px; }"
+            "QCheckBox::indicator { width: 20px; height: 20px; border: 2px solid #CBD5E1; "
+            "border-radius: 5px; background: #FFFFFF; }"
+            "QCheckBox::indicator:checked { background: #2563EB; border-color: #2563EB; }"
+            "QCheckBox::indicator:hover { border-color: #2563EB; }"
+        )
         for text in [
             "Принятые/отклонённые отклики",
             "Сообщения в чате",
@@ -1500,6 +1546,7 @@ class CarrierDashboard(QMainWindow):
         ]:
             cb = QCheckBox(text)
             cb.setChecked(True)
+            cb.setStyleSheet(_chk_sty)
             ncl.addWidget(cb)
         btn_sv = QPushButton("💾 Сохранить")
         btn_sv.setFixedSize(160, 42)
@@ -1514,7 +1561,7 @@ class CarrierDashboard(QMainWindow):
 
         about_card = QFrame()
         about_card.setStyleSheet(
-            f"QFrame {{ background: {C_CARD_BG}; border: 1.5px solid {C_BORDER}; border-radius: 14px; }} QLabel {{ border: none; background: transparent; }}"
+            f"QFrame {{ background: {C_CARD_BG}; border: 1.5px solid {C_BORDER}; border-radius: 14px; }} QLabel {{ border: none; background: transparent; color: {C_TEXT}; }}"
         )
         acl = QVBoxLayout(about_card)
         acl.setContentsMargins(28, 28, 28, 28)
@@ -1534,7 +1581,7 @@ class CarrierDashboard(QMainWindow):
         ]:
             lbl = QLabel(line)
             lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            lbl.setStyleSheet(f"color: {C_TEXT_MUTED}; font-size: 9pt;")
+            lbl.setStyleSheet(f"color: {C_TEXT_MUTED}; font-size: 11pt;")
             acl.addWidget(lbl)
         l.addWidget(about_card)
         l.addStretch()
@@ -1621,23 +1668,23 @@ class CarrierDashboard(QMainWindow):
             self.pf_bio.toPlainText().strip()
         )
         self.user["full_name"] = self.pf_fullname.text().strip()
-        QMessageBox.information(self, "Готово", "Профиль сохранён")
+        show_info(self, "Готово", "Профиль сохранён")
 
     def _change_password(self):
         old_pw  = self.pf_old_pw.text()
         new_pw  = self.pf_new_pw.text()
         new_pw2 = self.pf_new_pw2.text()
         if not all([old_pw, new_pw, new_pw2]):
-            QMessageBox.warning(self, "Ошибка", "Заполните все поля")
+            show_warning(self, "Ошибка", "Заполните все поля")
             return
         if new_pw != new_pw2:
-            QMessageBox.warning(self, "Ошибка", "Пароли не совпадают")
+            show_warning(self, "Ошибка", "Пароли не совпадают")
             return
         ok, msg = UserModel.change_password(self.user["id"], old_pw, new_pw)
         if ok:
-            QMessageBox.information(self, "Готово", msg)
+            show_info(self, "Готово", msg)
         else:
-            QMessageBox.warning(self, "Ошибка", msg)
+            show_warning(self, "Ошибка", msg)
 
     def _logout(self):
         from ui.auth.login_window import LoginWindow

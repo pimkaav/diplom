@@ -3,12 +3,13 @@ from __future__ import annotations
 
 from PyQt6.QtWidgets import (
     QDialog, QVBoxLayout, QHBoxLayout, QLabel, QPushButton,
-    QTextEdit, QFrame, QScrollArea, QWidget, QMessageBox
+    QTextEdit, QFrame, QScrollArea, QWidget
 )
 from PyQt6.QtCore import Qt, pyqtSignal
 
 from database.models import ReviewModel
 from utils.helpers import fmt_date
+from ui.styles import show_info, show_warning
 
 
 class StarRatingWidget(QWidget):
@@ -41,7 +42,7 @@ class StarRatingWidget(QWidget):
 
     def _refresh(self):
         for i, btn in enumerate(self._btns):
-            color = "#F59E0B" if i < self._rating else "#334155"
+            color = "#F59E0B" if i < self._rating else "#CBD5E1"
             btn.setStyleSheet(
                 f"font-size: 20pt; color: {color}; "
                 "background: transparent; border: none; padding: 0;"
@@ -55,7 +56,7 @@ class ReviewCard(QFrame):
     def __init__(self, review: dict, parent=None):
         super().__init__(parent)
         self.setStyleSheet(
-            "QFrame { background: #1E293B; border: 1.5px solid #334155; border-radius: 12px; }"
+            "QFrame { background: #FFFFFF; border: 1.5px solid #E2E8F0; border-radius: 12px; }"
         )
         vl = QVBoxLayout(self)
         vl.setContentsMargins(18, 14, 18, 14)
@@ -64,7 +65,7 @@ class ReviewCard(QFrame):
         # Header
         hdr = QHBoxLayout()
         name_lbl = QLabel(review.get("reviewer_name") or "Пользователь")
-        name_lbl.setStyleSheet("font-weight: 700; font-size: 11pt; color: #F1F5F9;")
+        name_lbl.setStyleSheet("font-weight: 700; font-size: 11pt; color: #0F172A;")
         hdr.addWidget(name_lbl)
         hdr.addStretch()
         date_lbl = QLabel(fmt_date(review.get("created_at", "")))
@@ -79,7 +80,7 @@ class ReviewCard(QFrame):
         for i in range(1, 6):
             s = QLabel("★" if i <= rating else "☆")
             s.setStyleSheet(
-                f"font-size: 14pt; color: {'#F59E0B' if i <= rating else '#475569'}; "
+                f"font-size: 14pt; color: {'#F59E0B' if i <= rating else '#CBD5E1'}; "
                 "background: transparent;"
             )
             stars_row.addWidget(s)
@@ -94,7 +95,7 @@ class ReviewCard(QFrame):
         comment = review.get("comment", "")
         if comment:
             txt = QLabel(comment)
-            txt.setStyleSheet("color: #CBD5E1; font-size: 10pt;")
+            txt.setStyleSheet("color: #0F172A; font-size: 10pt;")
             txt.setWordWrap(True)
             vl.addWidget(txt)
 
@@ -119,14 +120,14 @@ class ReviewsDialog(QDialog):
         self._build()
 
     def _build(self):
-        self.setStyleSheet("background: #0F172A;")
+        self.setStyleSheet("background: #F1F5F9;")
         root = QVBoxLayout(self)
         root.setContentsMargins(0, 0, 0, 0)
         root.setSpacing(0)
 
         # ── Header ────────────────────────────────────────────────
         hdr_w = QWidget()
-        hdr_w.setStyleSheet("background: #1E293B; border-bottom: 2px solid #334155;")
+        hdr_w.setStyleSheet("background: #FFFFFF; border-bottom: 2px solid #E2E8F0;")
         hdr_w.setFixedHeight(68)
         hl = QHBoxLayout(hdr_w)
         hl.setContentsMargins(24, 0, 24, 0)
@@ -139,7 +140,7 @@ class ReviewsDialog(QDialog):
         info_col = QVBoxLayout()
         info_col.setSpacing(1)
         title_lbl = QLabel(f"Отзывы о «{self.carrier_name}»")
-        title_lbl.setStyleSheet("color: #F1F5F9; font-size: 13pt; font-weight: 700;")
+        title_lbl.setStyleSheet("color: #0F172A; font-size: 13pt; font-weight: 700;")
         info_col.addWidget(title_lbl)
 
         reviews = ReviewModel.get_by_user(self.carrier_uid)
@@ -188,14 +189,14 @@ class ReviewsDialog(QDialog):
         if can_review:
             write_card = QFrame()
             write_card.setStyleSheet(
-                "QFrame { background: #1E3A5F; border: 1.5px solid #2563EB; border-radius: 14px; }"
+                "QFrame { background: #EFF6FF; border: 1.5px solid #2563EB; border-radius: 14px; }"
             )
             wl = QVBoxLayout(write_card)
             wl.setContentsMargins(20, 18, 20, 18)
             wl.setSpacing(12)
 
             w_title = QLabel("✍  Написать отзыв")
-            w_title.setStyleSheet("font-size: 13pt; font-weight: 700; color: #93C5FD;")
+            w_title.setStyleSheet("font-size: 13pt; font-weight: 700; color: #1D4ED8;")
             wl.addWidget(w_title)
 
             # Star selector
@@ -218,8 +219,8 @@ class ReviewsDialog(QDialog):
             )
             self._inp_review.setFixedHeight(110)
             self._inp_review.setStyleSheet(
-                "background: #0F172A; border: 1.5px solid #334155; border-radius: 8px; "
-                "color: #F1F5F9; padding: 10px; font-size: 10pt;"
+                "background: #FFFFFF; border: 1.5px solid #CBD5E1; border-radius: 8px; "
+                "color: #0F172A; padding: 10px; font-size: 10pt;"
             )
             wl.addWidget(self._inp_review)
 
@@ -237,8 +238,8 @@ class ReviewsDialog(QDialog):
               and self.completed_order_id is not None):
             done_lbl = QLabel("✅  Вы уже оставили отзыв об этой перевозке")
             done_lbl.setStyleSheet(
-                "color: #22C55E; font-size: 10pt; font-weight: 600; "
-                "background: #14532D; border-radius: 8px; padding: 10px 16px;"
+                "color: #15803D; font-size: 10pt; font-weight: 600; "
+                "background: #F0FDF4; border: 1px solid #16A34A; border-radius: 8px; padding: 10px 16px;"
             )
             vl.addWidget(done_lbl)
 
@@ -252,7 +253,7 @@ class ReviewsDialog(QDialog):
         else:
             empty = QFrame()
             empty.setStyleSheet(
-                "background: #1E293B; border: 1.5px dashed #334155; border-radius: 12px;"
+                "background: #F8FAFC; border: 1.5px dashed #CBD5E1; border-radius: 12px;"
             )
             el = QVBoxLayout(empty)
             el.setContentsMargins(24, 32, 24, 32)
@@ -269,10 +270,10 @@ class ReviewsDialog(QDialog):
     def _submit(self):
         comment = self._inp_review.toPlainText().strip()
         if not comment:
-            QMessageBox.warning(self, "Ошибка", "Пожалуйста, напишите текст отзыва")
+            show_warning(self, "Ошибка", "Пожалуйста, напишите текст отзыва")
             return
         if len(comment) < 10:
-            QMessageBox.warning(self, "Ошибка", "Отзыв слишком короткий — напишите хотя бы 10 символов")
+            show_warning(self, "Ошибка", "Отзыв слишком короткий — напишите хотя бы 10 символов")
             return
         ReviewModel.create(
             self.current_user["id"],
@@ -281,7 +282,7 @@ class ReviewsDialog(QDialog):
             self._rating,
             comment,
         )
-        QMessageBox.information(
+        show_info(
             self, "Спасибо за отзыв!",
             f"Ваш отзыв опубликован.\nОценка: {'★' * self._rating}{'☆' * (5 - self._rating)}"
         )

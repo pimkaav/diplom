@@ -1,11 +1,12 @@
 from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit,
-    QPushButton, QFrame, QCheckBox, QSizePolicy, QMessageBox,
+    QPushButton, QFrame, QCheckBox, QSizePolicy,
     QStackedWidget, QComboBox, QScrollArea
 )
 from PyQt6.QtCore import Qt
 
 from database.models import UserModel
+from ui.styles import show_info, show_warning
 
 
 # ── Shared helpers ─────────────────────────────────────────────────────
@@ -22,9 +23,9 @@ def _field_row(parent_layout, label_text: str, placeholder: str = "",
     inp.setPlaceholderText(placeholder if placeholder else "Введите текст...")
     inp.setFixedHeight(46)
     inp.setStyleSheet(
-        "QLineEdit { background: #1A2540; border: 2px solid #3B82F6; border-radius: 10px; "
-        "color: #F1F5F9; padding: 8px 14px; font-size: 11pt; }"
-        "QLineEdit:focus { border-color: #60A5FA; background: #1E3050; }"
+        "QLineEdit { background: #FFFFFF; border: 2px solid #CBD5E1; border-radius: 10px; "
+        "color: #0F172A; padding: 8px 14px; font-size: 11pt; }"
+        "QLineEdit:focus { border-color: #2563EB; border-width: 2px; background: #EFF6FF; }"
     )
     if password:
         inp.setEchoMode(QLineEdit.EchoMode.Password)
@@ -53,8 +54,8 @@ class _LoginPage(QFrame):
     def _build(self):
         self.setStyleSheet("""
             QFrame {
-                background: #1E293B;
-                border: 1.5px solid #334155;
+                background: #FFFFFF;
+                border: 1.5px solid #E2E8F0;
                 border-radius: 18px;
             }
         """)
@@ -91,9 +92,28 @@ class _LoginPage(QFrame):
         self.inp_pass.returnPressed.connect(self._do_login)
 
         self.chk_remember = QCheckBox("Запомнить меня")
-        self.chk_remember.setStyleSheet(
-            "background: transparent; border: none; color: #64748B;"
-        )
+        self.chk_remember.setStyleSheet("""
+            QCheckBox {
+                background: transparent;
+                border: none;
+                color: #475569;
+                font-size: 10pt;
+            }
+            QCheckBox::indicator {
+                width: 18px; height: 18px;
+                border: 2px solid #CBD5E1;
+                border-radius: 4px;
+                background: #FFFFFF;
+            }
+            QCheckBox::indicator:checked {
+                background: #2563EB;
+                border-color: #2563EB;
+                image: none;
+            }
+            QCheckBox::indicator:hover {
+                border-color: #2563EB;
+            }
+        """)
         cl.addWidget(self.chk_remember)
 
         btn_login = QPushButton("Войти")
@@ -107,7 +127,7 @@ class _LoginPage(QFrame):
 
         sep = QFrame()
         sep.setFrameShape(QFrame.Shape.HLine)
-        sep.setStyleSheet("background: #334155; border: none; max-height: 1px;")
+        sep.setStyleSheet("background: #E2E8F0; border: none; max-height: 1px;")
         cl.addWidget(sep)
 
         reg_row = QHBoxLayout()
@@ -128,11 +148,11 @@ class _LoginPage(QFrame):
         username = self.inp_user.text().strip()
         password = self.inp_pass.text()
         if not username or not password:
-            QMessageBox.warning(self, "Ошибка", "Введите логин и пароль")
+            show_warning(self, "Ошибка", "Введите логин и пароль")
             return
         user = UserModel.login(username, password)
         if not user:
-            QMessageBox.warning(self, "Ошибка входа", "Неверный логин или пароль")
+            show_warning(self, "Ошибка входа", "Неверный логин или пароль")
             self.inp_pass.clear()
             return
         self._on_login(user)
@@ -150,8 +170,8 @@ class _RegisterPage(QFrame):
     def _build(self):
         self.setStyleSheet("""
             QFrame#regCard {
-                background: #1E293B;
-                border: 1.5px solid #334155;
+                background: #FFFFFF;
+                border: 1.5px solid #E2E8F0;
                 border-radius: 18px;
             }
         """)
@@ -229,11 +249,15 @@ class _RegisterPage(QFrame):
         self.cmb_role.addItem("🚛  Перевозчик (Исполнитель)", "carrier")
         self.cmb_role.setFixedHeight(46)
         self.cmb_role.setStyleSheet(
-            "QComboBox { background: #1A2540; border: 2px solid #3B82F6; border-radius: 10px; "
-            "color: #F1F5F9; padding: 8px 14px; font-size: 10pt; }"
-            "QComboBox:focus { border-color: #60A5FA; }"
-            "QComboBox::drop-down { border: none; width: 24px; }"
-            "QComboBox QAbstractItemView { background: #1E293B; color: #F1F5F9; border: 1px solid #3B82F6; }"
+            "QComboBox { background: #FFFFFF; border: 2px solid #CBD5E1; border-radius: 10px; "
+            "color: #0F172A; padding: 8px 14px; font-size: 11pt; }"
+            "QComboBox:focus { border-color: #2563EB; background: #EFF6FF; }"
+            "QComboBox::drop-down { border: none; width: 26px; background: transparent; }"
+            "QComboBox QAbstractItemView { background: #FFFFFF; color: #0F172A; "
+            "border: 1.5px solid #CBD5E1; selection-background-color: #EFF6FF; "
+            "selection-color: #2563EB; font-size: 11pt; outline: none; }"
+            "QComboBox QAbstractItemView::item { color: #0F172A; padding: 10px 14px; min-height: 32px; }"
+            "QComboBox QAbstractItemView::item:selected { background: #EFF6FF; color: #2563EB; }"
         )
         cl.addWidget(self.cmb_role)
         cl.addSpacing(8)
@@ -275,30 +299,30 @@ class _RegisterPage(QFrame):
         role      = self.cmb_role.currentData()
 
         if not all([username, email, fullname, password]):
-            QMessageBox.warning(self, "Ошибка", "Заполните все обязательные поля (*)")
+            show_warning(self, "Ошибка", "Заполните все обязательные поля (*)")
             return
         if len(username) < 3:
-            QMessageBox.warning(self, "Ошибка", "Логин должен быть не менее 3 символов")
+            show_warning(self, "Ошибка", "Логин должен быть не менее 3 символов")
             return
         if len(password) < 6:
-            QMessageBox.warning(self, "Ошибка", "Пароль должен быть не менее 6 символов")
+            show_warning(self, "Ошибка", "Пароль должен быть не менее 6 символов")
             return
         if password != password2:
-            QMessageBox.warning(self, "Ошибка", "Пароли не совпадают")
+            show_warning(self, "Ошибка", "Пароли не совпадают")
             return
         if "@" not in email:
-            QMessageBox.warning(self, "Ошибка", "Введите корректный email")
+            show_warning(self, "Ошибка", "Введите корректный email")
             return
 
         ok, msg = UserModel.register(username, email, password, role, fullname, phone, city)
         if ok:
-            QMessageBox.information(
+            show_info(
                 self, "Аккаунт создан",
                 f"Добро пожаловать, {fullname or username}!\nТеперь войдите в систему."
             )
             self._on_registered()
         else:
-            QMessageBox.warning(self, "Ошибка регистрации", msg)
+            show_warning(self, "Ошибка регистрации", msg)
 
 
 # ── Combined Login window ───────────────────────────────────────────────
@@ -312,7 +336,7 @@ class LoginWindow(QWidget):
         self._build()
 
     def _build(self):
-        self.setStyleSheet("background: #0F172A;")
+        self.setStyleSheet("background: #F1F5F9;")
 
         root = QVBoxLayout(self)
         root.setAlignment(Qt.AlignmentFlag.AlignCenter)

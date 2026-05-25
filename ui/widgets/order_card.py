@@ -37,33 +37,34 @@ class OrderCard(QFrame):
             QLabel {{
                 border: none;
                 background: transparent;
+                color: {C_TEXT};
             }}
         """)
 
         root = QVBoxLayout(self)
-        root.setContentsMargins(18, 16, 18, 16)
-        root.setSpacing(10)
+        root.setContentsMargins(20, 18, 20, 18)
+        root.setSpacing(12)
 
         # ── Header row ──────────────────────────────────────────
         hdr = QHBoxLayout()
         title = QLabel(self.order.get("title", "Без названия"))
-        title.setStyleSheet(f"font-weight: 700; font-size: 12pt; color: {C_TEXT};")
+        title.setStyleSheet(f"font-weight: 700; font-size: 13pt; color: {C_TEXT};")
         hdr.addWidget(title)
 
         hdr.addStretch()
         status = self.order.get("status", "new")
-        bg, fg = STATUS_COLORS.get(status, ("#1E293B", C_TEXT_MUTED))
+        bg, fg = STATUS_COLORS.get(status, ("#F8FAFC", C_TEXT_MUTED))
         badge = QLabel(STATUS_LABELS.get(status, status))
         badge.setStyleSheet(
             f"background: {bg}; color: {fg}; border: 2px solid {fg}; border-radius: 12px; "
-            f"padding: 3px 14px; font-weight: 700; font-size: 9pt;"
+            f"padding: 4px 14px; font-weight: 700; font-size: 10pt;"
         )
         hdr.addWidget(badge)
         root.addLayout(hdr)
 
         # ── Route ────────────────────────────────────────────────
         route = QLabel(f"📍 {self.order.get('from_city','?')}  →  {self.order.get('to_city','?')}")
-        route.setStyleSheet(f"color: {C_TEXT_MUTED}; font-size: 10pt;")
+        route.setStyleSheet(f"color: {C_TEXT_MUTED}; font-size: 11pt;")
         root.addWidget(route)
 
         # ── Details row ──────────────────────────────────────────
@@ -72,7 +73,7 @@ class OrderCard(QFrame):
 
         def info_lbl(icon: str, text: str) -> QLabel:
             lbl = QLabel(f"{icon} {text}")
-            lbl.setStyleSheet(f"color: {C_TEXT_MUTED}; font-size: 9pt;")
+            lbl.setStyleSheet(f"color: {C_TEXT_MUTED}; font-size: 10pt;")
             return lbl
 
         details.addWidget(info_lbl("📦", self.order.get("cargo_type") or "Груз"))
@@ -87,8 +88,8 @@ class OrderCard(QFrame):
         # ── Comment ──────────────────────────────────────────────
         comment = self.order.get("comment", "")
         if comment:
-            lbl = QLabel(truncate(comment, 100))
-            lbl.setStyleSheet(f"color: {C_TEXT_MUTED}; font-size: 9pt; font-style: italic;")
+            lbl = QLabel(truncate(comment, 120))
+            lbl.setStyleSheet(f"color: {C_TEXT}; font-size: 11pt; font-style: italic;")
             lbl.setWordWrap(True)
             root.addWidget(lbl)
 
@@ -104,11 +105,11 @@ class OrderCard(QFrame):
         # "Подробнее" button — always visible
         btn_detail = QPushButton("Подробнее →")
         btn_detail.setStyleSheet(
-            "QPushButton { background: transparent; color: #3B82F6; border: 1.5px solid #3B82F6; "
-            "border-radius: 8px; font-size: 9pt; font-weight: 600; padding: 0 12px; }"
+            "QPushButton { background: transparent; color: #3B82F6; border: 2px solid #3B82F6; "
+            "border-radius: 8px; font-size: 10pt; font-weight: 600; padding: 0 14px; }"
             "QPushButton:hover { background: rgba(59,130,246,0.14); }"
         )
-        btn_detail.setFixedHeight(32)
+        btn_detail.setFixedHeight(36)
         btn_detail.clicked.connect(lambda: self.clicked.emit(self.order))
         btns.addWidget(btn_detail)
 
@@ -130,7 +131,7 @@ class OrderCard(QFrame):
             if cur_status == "new":
                 btn_prog = QPushButton("В работу")
                 btn_prog.setStyleSheet(_sty_green)
-                btn_prog.setFixedHeight(32)
+                btn_prog.setFixedHeight(36)
                 btn_prog.clicked.connect(
                     lambda: self.status_changed.emit(self.order["id"], "in_progress")
                 )
@@ -138,7 +139,7 @@ class OrderCard(QFrame):
 
                 btn_cancel = QPushButton("Отменить")
                 btn_cancel.setStyleSheet(_sty_red)
-                btn_cancel.setFixedHeight(32)
+                btn_cancel.setFixedHeight(36)
                 btn_cancel.clicked.connect(
                     lambda: self.status_changed.emit(self.order["id"], "cancelled")
                 )
@@ -147,7 +148,7 @@ class OrderCard(QFrame):
             elif cur_status == "in_progress":
                 btn_done = QPushButton("Завершить")
                 btn_done.setStyleSheet(_sty_green)
-                btn_done.setFixedHeight(32)
+                btn_done.setFixedHeight(36)
                 btn_done.clicked.connect(
                     lambda: self.status_changed.emit(self.order["id"], "completed")
                 )

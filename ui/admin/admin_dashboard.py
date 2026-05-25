@@ -1,7 +1,7 @@
 from PyQt6.QtWidgets import (
     QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QLabel,
     QPushButton, QStackedWidget, QScrollArea, QFrame,
-    QTableWidget, QTableWidgetItem, QHeaderView, QComboBox, QMessageBox
+    QTableWidget, QTableWidgetItem, QHeaderView, QComboBox
 )
 from PyQt6.QtCore import Qt, QTimer
 from PyQt6.QtGui import QColor
@@ -12,7 +12,8 @@ from database.models import (
 from ui.styles import (
     C_SIDEBAR_BG, C_CONTENT_BG, C_CARD_BG, C_BORDER, C_TEXT,
     C_TEXT_MUTED, C_PRIMARY, NAV_BTN_STYLE, C_SUCCESS, C_DANGER,
-    STATUS_LABELS, STATUS_COLORS, PAYMENT_STATUS_LABELS
+    STATUS_LABELS, STATUS_COLORS, PAYMENT_STATUS_LABELS,
+    show_question
 )
 from utils.helpers import fmt_money, fmt_date, fmt_datetime
 
@@ -48,7 +49,7 @@ class AdminDashboard(QMainWindow):
         la = QHBoxLayout(logo_area)
         la.setContentsMargins(8, 0, 8, 0)
         ll = QLabel("🚛 FreightExchange")
-        ll.setStyleSheet("color: white; font-size: 13pt; font-weight: 800;")
+        ll.setStyleSheet("color: #0F172A; font-size: 13pt; font-weight: 800;")
         la.addWidget(ll)
         sb.addWidget(logo_area)
 
@@ -59,7 +60,7 @@ class AdminDashboard(QMainWindow):
         abl = QHBoxLayout(admin_badge)
         abl.setContentsMargins(12, 8, 12, 8)
         at = QLabel("🛡 Панель администратора")
-        at.setStyleSheet("color: #FCA5A5; font-size: 9pt; font-weight: 600;")
+        at.setStyleSheet("color: #DC2626; font-size: 9pt; font-weight: 600;")
         abl.addWidget(at)
         sb.addWidget(admin_badge)
         sb.addSpacing(8)
@@ -186,7 +187,6 @@ class AdminDashboard(QMainWindow):
             ["ID", "Логин", "Имя", "Роль", "Баланс", "Дата", "Статус"], []
         )
         l.addWidget(self._overview_users_tbl)
-        l.addStretch()
         w.setWidget(inner)
 
         self._refresh_overview()
@@ -304,10 +304,7 @@ class AdminDashboard(QMainWindow):
 
     def _toggle_user(self, user_id: int, is_active: int):
         action = "разблокировать" if is_active else "заблокировать"
-        if QMessageBox.question(
-            self, "Подтверждение", f"Вы хотите {action} пользователя?",
-            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
-        ) == QMessageBox.StandardButton.Yes:
+        if show_question(self, "Подтверждение", f"Вы хотите {action} пользователя?"):
             UserModel.set_active(user_id, is_active)
             self._reload_users()
 
@@ -459,14 +456,14 @@ class AdminDashboard(QMainWindow):
         desc = QFrame()
         # Type selectors prevent border from cascading to child QLabels
         desc.setStyleSheet(
-            "QFrame { background: #1E3A5F; border: 1.5px solid #2563EB; border-radius: 10px; }"
+            "QFrame { background: #EFF6FF; border: 1.5px solid #2563EB; border-radius: 10px; }"
             "QLabel { background: transparent; border: none; }"
         )
         dl = QVBoxLayout(desc)
         dl.setContentsMargins(16, 12, 16, 12)
         dl.setSpacing(4)
         title_lbl = QLabel("ℹ️  Схема безопасных расчётов (Escrow)")
-        title_lbl.setStyleSheet("font-weight: 700; color: #93C5FD; font-size: 11pt; border: none;")
+        title_lbl.setStyleSheet("font-weight: 700; color: #1D4ED8; font-size: 11pt; border: none;")
         dl.addWidget(title_lbl)
         for txt in [
             "1. Заказчик принимает отклик → средства удерживаются системой (Held)",
@@ -475,7 +472,7 @@ class AdminDashboard(QMainWindow):
             "4. При спорах — ручное рассмотрение и возврат средств администратором",
         ]:
             lbl = QLabel(txt)
-            lbl.setStyleSheet("color: #CBD5E1; font-size: 9pt; border: none;")
+            lbl.setStyleSheet("color: #1E3A5F; font-size: 9pt; border: none;")
             dl.addWidget(lbl)
         l.addWidget(desc)
 
@@ -555,18 +552,12 @@ class AdminDashboard(QMainWindow):
         self._reload_payments()
 
     def _release_payment(self, pid: int):
-        if QMessageBox.question(
-            self, "Подтверждение", "Выплатить средства перевозчику?",
-            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
-        ) == QMessageBox.StandardButton.Yes:
+        if show_question(self, "Подтверждение", "Выплатить средства перевозчику?"):
             PaymentModel.release(pid)
             self._reload_payments()
 
     def _refund_payment(self, pid: int):
-        if QMessageBox.question(
-            self, "Подтверждение", "Вернуть средства заказчику?",
-            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
-        ) == QMessageBox.StandardButton.Yes:
+        if show_question(self, "Подтверждение", "Вернуть средства заказчику?"):
             PaymentModel.refund(pid)
             self._reload_payments()
 
@@ -642,8 +633,58 @@ class AdminDashboard(QMainWindow):
         tbl.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
         tbl.setAlternatingRowColors(True)
         tbl.verticalHeader().setVisible(False)
-        tbl.verticalHeader().setDefaultSectionSize(42)
+        tbl.verticalHeader().setDefaultSectionSize(54)
         tbl.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+        tbl.setStyleSheet("""
+            QTableWidget {
+                background: #FFFFFF;
+                alternate-background-color: #F8FAFC;
+                border: 1px solid #E2E8F0;
+                border-radius: 8px;
+                gridline-color: #E2E8F0;
+                color: #0F172A;
+                font-size: 12pt;
+                outline: none;
+            }
+            QTableWidget::item {
+                padding: 10px 14px;
+                border: none;
+                color: #0F172A;
+                font-size: 13pt;
+            }
+            QTableWidget::item:selected {
+                background: #EFF6FF;
+                color: #1D4ED8;
+            }
+            QTableWidget::item:hover {
+                background: #F1F5F9;
+            }
+            QHeaderView::section {
+                background: #F1F5F9;
+                color: #334155;
+                font-weight: 700;
+                font-size: 12pt;
+                padding: 12px 14px;
+                border: none;
+                border-bottom: 2px solid #E2E8F0;
+                border-right: 1px solid #E2E8F0;
+            }
+            QHeaderView::section:last {
+                border-right: none;
+            }
+            QScrollBar:vertical {
+                background: #F8FAFC;
+                width: 8px;
+                border-radius: 4px;
+            }
+            QScrollBar::handle:vertical {
+                background: #CBD5E1;
+                border-radius: 4px;
+            }
+            QScrollBar::handle:vertical:hover {
+                background: #94A3B8;
+            }
+        """)
         tbl.setRowCount(len(rows))
         for r, row_data in enumerate(rows):
             for c, val in enumerate(row_data):

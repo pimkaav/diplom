@@ -1,13 +1,13 @@
 from PyQt6.QtWidgets import (
     QDialog, QVBoxLayout, QHBoxLayout, QLabel, QPushButton,
     QTextEdit, QDoubleSpinBox, QSpinBox, QFrame, QWidget,
-    QMessageBox, QScrollArea, QLineEdit, QFormLayout, QComboBox
+    QScrollArea, QLineEdit, QFormLayout, QComboBox
 )
 from PyQt6.QtCore import Qt, pyqtSignal
 from database.models import ResponseModel, NotificationModel, OrderModel, TruckModel
 from ui.styles import (
     C_CONTENT_BG, C_CARD_BG, C_BORDER, C_TEXT, C_TEXT_MUTED, C_PRIMARY,
-    STATUS_LABELS
+    STATUS_LABELS, show_info, show_warning
 )
 from ui.widgets.progress_tracker import ProgressTracker
 from utils.helpers import fmt_money, fmt_date
@@ -36,7 +36,7 @@ class OrderDetailDialog(QDialog):
         scroll.setStyleSheet("background: transparent;")
 
         w = QWidget()
-        w.setStyleSheet("background: transparent;")
+        w.setStyleSheet(f"background: {C_CONTENT_BG};")
         wl = QVBoxLayout(w)
         wl.setContentsMargins(24, 24, 24, 24)
         wl.setSpacing(16)
@@ -47,7 +47,7 @@ class OrderDetailDialog(QDialog):
         if o.get("status") == "in_progress":
             prog_frame = QFrame()
             prog_frame.setStyleSheet(
-                f"QFrame {{ background: {C_CARD_BG}; border: 1.5px solid {C_BORDER}; border-radius: 12px; }} QLabel {{ border: none; background: transparent; }}"
+                f"QFrame {{ background: {C_CARD_BG}; border: 1.5px solid {C_BORDER}; border-radius: 12px; }} QLabel {{ border: none; background: transparent; color: {C_TEXT}; }}"
             )
             pfl = QVBoxLayout(prog_frame)
             pfl.setContentsMargins(16, 14, 16, 14)
@@ -58,14 +58,14 @@ class OrderDetailDialog(QDialog):
 
         # Title
         title_lbl = QLabel(o.get("title", ""))
-        title_lbl.setStyleSheet(f"font-size: 15pt; font-weight: 800; color: {C_TEXT};")
+        title_lbl.setStyleSheet(f"font-size: 17pt; font-weight: 800; color: {C_TEXT};")
         title_lbl.setWordWrap(True)
         wl.addWidget(title_lbl)
 
         # Details card
         detail_card = QFrame()
         detail_card.setStyleSheet(
-            f"QFrame {{ background: {C_CARD_BG}; border: 1.5px solid {C_BORDER}; border-radius: 12px; }} QLabel {{ border: none; background: transparent; }}"
+            f"QFrame {{ background: {C_CARD_BG}; border: 1.5px solid {C_BORDER}; border-radius: 12px; }} QLabel {{ border: none; background: transparent; color: {C_TEXT}; }}"
         )
         dcl = QVBoxLayout(detail_card)
         dcl.setContentsMargins(20, 16, 20, 16)
@@ -74,10 +74,10 @@ class OrderDetailDialog(QDialog):
         def row(label: str, value: str):
             r = QHBoxLayout()
             lb = QLabel(label + ":")
-            lb.setStyleSheet(f"color: {C_TEXT_MUTED}; font-size: 9pt; font-weight: 600;")
-            lb.setFixedWidth(160)
+            lb.setStyleSheet(f"color: {C_TEXT_MUTED}; font-size: 11pt; font-weight: 600;")
+            lb.setFixedWidth(190)
             vl = QLabel(value or "—")
-            vl.setStyleSheet(f"color: {C_TEXT}; font-size: 10pt;")
+            vl.setStyleSheet(f"color: {C_TEXT}; font-size: 12pt;")
             vl.setWordWrap(True)
             r.addWidget(lb)
             r.addWidget(vl)
@@ -117,18 +117,19 @@ class OrderDetailDialog(QDialog):
             cgl.setContentsMargins(16, 12, 16, 12)
             cgl.addWidget(_mlbl("Комментарий заказчика"))
             cl = QLabel(o.get("comment", ""))
+            cl.setStyleSheet(f"color: {C_TEXT}; font-size: 12pt; background: transparent;")
             cl.setWordWrap(True)
             cgl.addWidget(cl)
             wl.addWidget(cf)
 
         if o.get("special_requirements"):
             sf = QFrame()
-            sf.setStyleSheet("QFrame { background: #2D2006; border: 1.5px solid #78350F; border-radius: 10px; } QLabel { border: none; background: transparent; }")
+            sf.setStyleSheet("QFrame { background: #FFFBEB; border: 1.5px solid #D97706; border-radius: 10px; } QLabel { border: none; background: transparent; }")
             srl = QVBoxLayout(sf)
             srl.setContentsMargins(16, 12, 16, 12)
             srl.addWidget(_mlbl("⚠ Специальные требования"))
             sl = QLabel(o.get("special_requirements", ""))
-            sl.setStyleSheet("color: #FCD34D;")
+            sl.setStyleSheet("color: #92400E; font-size: 11pt; background: transparent;")
             sl.setWordWrap(True)
             srl.addWidget(sl)
             wl.addWidget(sf)
@@ -144,12 +145,12 @@ class OrderDetailDialog(QDialog):
         elif already and o.get("status") == "new":
             done_lbl = QFrame()
             done_lbl.setStyleSheet(
-                "QFrame { background: #14532D; border: 1.5px solid #16A34A; border-radius: 10px; } QLabel { border: none; background: transparent; }"
+                "QFrame { background: #F0FDF4; border: 1.5px solid #16A34A; border-radius: 10px; } QLabel { border: none; background: transparent; }"
             )
             dl = QHBoxLayout(done_lbl)
             dl.setContentsMargins(16, 12, 16, 12)
             done_txt = QLabel("✅ Вы уже откликнулись на эту заявку")
-            done_txt.setStyleSheet("color: #86EFAC; font-weight: 600;")
+            done_txt.setStyleSheet("color: #15803D; font-size: 12pt; font-weight: 600; background: transparent;")
             dl.addWidget(done_txt)
             wl.addWidget(done_lbl)
 
@@ -168,7 +169,7 @@ class OrderDetailDialog(QDialog):
         if progress == "waiting":
             veh_grp = QFrame()
             veh_grp.setStyleSheet(
-                f"QFrame {{ background: {C_CARD_BG}; border: 1.5px solid {C_BORDER}; border-radius: 12px; }} QLabel {{ border: none; background: transparent; }}"
+                f"QFrame {{ background: {C_CARD_BG}; border: 1.5px solid {C_BORDER}; border-radius: 12px; }} QLabel {{ border: none; background: transparent; color: {C_TEXT}; }}"
             )
             vgl = QVBoxLayout(veh_grp)
             vgl.setContentsMargins(20, 16, 20, 16)
@@ -179,11 +180,22 @@ class OrderDetailDialog(QDialog):
             self._fleet_trucks = TruckModel.get_by_carrier(self.carrier_id)
             if self._fleet_trucks:
                 fleet_lbl = QLabel("Выбрать из автопарка:")
-                fleet_lbl.setStyleSheet(f"color: {C_TEXT_MUTED}; font-size: 9pt; font-weight: 600;")
+                fleet_lbl.setStyleSheet(f"color: {C_TEXT_MUTED}; font-size: 11pt; font-weight: 600;")
                 vgl.addWidget(fleet_lbl)
 
                 self.cmb_fleet = QComboBox()
-                self.cmb_fleet.setFixedHeight(38)
+                self.cmb_fleet.setFixedHeight(42)
+                self.cmb_fleet.setStyleSheet(
+                    "QComboBox { background: #FFFFFF; border: 2px solid #CBD5E1; border-radius: 8px; "
+                    "color: #0F172A; padding: 6px 12px; font-size: 11pt; }"
+                    "QComboBox:focus { border-color: #2563EB; background: #EFF6FF; }"
+                    "QComboBox::drop-down { border: none; width: 26px; background: transparent; }"
+                    "QComboBox QAbstractItemView { background: #FFFFFF; color: #0F172A; "
+                    "border: 1.5px solid #CBD5E1; selection-background-color: #EFF6FF; "
+                    "selection-color: #2563EB; font-size: 11pt; outline: none; }"
+                    "QComboBox QAbstractItemView::item { color: #0F172A; padding: 8px 12px; min-height: 28px; }"
+                    "QComboBox QAbstractItemView::item:selected { background: #EFF6FF; color: #2563EB; }"
+                )
                 self.cmb_fleet.addItem("— Выбрать ТС из автопарка —", None)
                 for t in self._fleet_trucks:
                     label = f"{t['brand']} {t['model']}  ·  {t['plate_number']}  ·  {t['capacity_tons']}т"
@@ -194,27 +206,40 @@ class OrderDetailDialog(QDialog):
             fl = QFormLayout()
             fl.setSpacing(10)
 
+            _inp_sty = (
+                "QLineEdit { background: #FFFFFF; border: 2px solid #CBD5E1; border-radius: 8px; "
+                "color: #0F172A; padding: 4px 12px; font-size: 11pt; }"
+                "QLineEdit:focus { border-color: #2563EB; background: #EFF6FF; }"
+            )
+
             self.inp_driver = QLineEdit()
             self.inp_driver.setPlaceholderText("Иванов Иван Иванович")
-            self.inp_driver.setFixedHeight(38)
+            self.inp_driver.setFixedHeight(42)
+            self.inp_driver.setStyleSheet(_inp_sty)
             fl.addRow("Водитель *", self.inp_driver)
 
             self.inp_truck_num = QLineEdit()
             self.inp_truck_num.setPlaceholderText("А123ВС77")
-            self.inp_truck_num.setFixedHeight(38)
+            self.inp_truck_num.setFixedHeight(42)
+            self.inp_truck_num.setStyleSheet(_inp_sty)
             fl.addRow("Номер ТС *", self.inp_truck_num)
 
             self.inp_truck_model = QLineEdit()
             self.inp_truck_model.setPlaceholderText("МАЗ-4371, КАМАЗ-5490...")
-            self.inp_truck_model.setFixedHeight(38)
+            self.inp_truck_model.setFixedHeight(42)
+            self.inp_truck_model.setStyleSheet(_inp_sty)
             fl.addRow("Модель ТС", self.inp_truck_model)
             vgl.addLayout(fl)
 
             btn_row = QHBoxLayout()
             btn_row.addStretch()
-            btn_assign = QPushButton("Назначить транспорт")
-            btn_assign.setProperty("cls", "success")
-            btn_assign.setFixedHeight(40)
+            btn_assign = QPushButton("✅ Назначить транспорт")
+            btn_assign.setFixedSize(220, 44)
+            btn_assign.setStyleSheet(
+                "QPushButton { background: #16A34A; color: white; border: none; "
+                "border-radius: 8px; font-size: 11pt; font-weight: 700; }"
+                "QPushButton:hover { background: #15803D; }"
+            )
             btn_assign.clicked.connect(self._assign_vehicle)
             btn_row.addWidget(btn_assign)
             vgl.addLayout(btn_row)
@@ -240,7 +265,7 @@ class OrderDetailDialog(QDialog):
             if progress == "vehicle_assigned":
                 box = QFrame()
                 box.setStyleSheet(
-                    "background: #1E3A5F; border: 1.5px solid #2563EB; border-radius: 12px;"
+                    "background: #EFF6FF; border: 1.5px solid #2563EB; border-radius: 12px;"
                 )
                 bl = QVBoxLayout(box)
                 bl.setContentsMargins(18, 14, 18, 14)
@@ -249,12 +274,16 @@ class OrderDetailDialog(QDialog):
                     "🚛 Транспорт назначен. После погрузки нажмите «Груз отправлен», "
                     "затем заказчик подтвердит отправку."
                 )
-                info.setStyleSheet("color: #93C5FD; font-size: 10pt;")
+                info.setStyleSheet("color: #1D4ED8; font-size: 11pt; background: transparent;")
                 info.setWordWrap(True)
                 bl.addWidget(info)
                 btn = QPushButton("📦 Отметить: груз отправлен")
-                btn.setProperty("cls", "secondary")
-                btn.setFixedHeight(40)
+                btn.setFixedHeight(44)
+                btn.setStyleSheet(
+                    "QPushButton { background: transparent; color: #2563EB; border: 2px solid #2563EB; "
+                    "border-radius: 8px; font-size: 11pt; font-weight: 600; padding: 0 16px; }"
+                    "QPushButton:hover { background: #EFF6FF; }"
+                )
                 btn.clicked.connect(self._mark_dispatched)
                 bl.addWidget(btn)
                 parent.addWidget(box)
@@ -262,7 +291,7 @@ class OrderDetailDialog(QDialog):
             elif progress in ("dispatched", "in_transit"):
                 box = QFrame()
                 box.setStyleSheet(
-                    "background: #0C2340; border: 1.5px solid #1D4ED8; border-radius: 12px;"
+                    "background: #EFF6FF; border: 1.5px solid #1D4ED8; border-radius: 12px;"
                 )
                 bl = QVBoxLayout(box)
                 bl.setContentsMargins(18, 14, 18, 14)
@@ -270,12 +299,16 @@ class OrderDetailDialog(QDialog):
                 info = QLabel(
                     "🚚 Груз в пути. По прибытии к месту назначения нажмите «Прибыл»."
                 )
-                info.setStyleSheet("color: #93C5FD; font-size: 10pt;")
+                info.setStyleSheet("color: #1D4ED8; font-size: 11pt; background: transparent;")
                 info.setWordWrap(True)
                 bl.addWidget(info)
                 btn = QPushButton("📍 Отметить: прибыл к месту назначения")
-                btn.setProperty("cls", "secondary")
-                btn.setFixedHeight(40)
+                btn.setFixedHeight(44)
+                btn.setStyleSheet(
+                    "QPushButton { background: transparent; color: #2563EB; border: 2px solid #2563EB; "
+                    "border-radius: 8px; font-size: 11pt; font-weight: 600; padding: 0 16px; }"
+                    "QPushButton:hover { background: #EFF6FF; }"
+                )
                 btn.clicked.connect(self._mark_arrived)
                 bl.addWidget(btn)
                 parent.addWidget(box)
@@ -283,8 +316,8 @@ class OrderDetailDialog(QDialog):
             elif progress == "arrived":
                 info = QLabel("📍 Вы отметили прибытие. Ожидайте подтверждения заказчика.")
                 info.setStyleSheet(
-                    "QFrame { background: #14532D; border: 1.5px solid #16A34A; border-radius: 10px; } QLabel { border: none; background: transparent; }"
-                    "color: #86EFAC; font-size: 10pt; padding: 12px 16px;"
+                    "color: #15803D; font-size: 11pt; padding: 12px 16px; "
+                    "background: #F0FDF4; border: 1.5px solid #16A34A; border-radius: 10px;"
                 )
                 info.setWordWrap(True)
                 parent.addWidget(info)
@@ -293,7 +326,7 @@ class OrderDetailDialog(QDialog):
         o = self.order
         resp_grp = QFrame()
         resp_grp.setStyleSheet(
-            f"QFrame {{ background: {C_CARD_BG}; border: 1.5px solid {C_BORDER}; border-radius: 12px; }} QLabel {{ border: none; background: transparent; }}"
+            f"QFrame {{ background: {C_CARD_BG}; border: 1.5px solid {C_BORDER}; border-radius: 12px; }} QLabel {{ border: none; background: transparent; color: {C_TEXT}; }}"
         )
         rgl = QVBoxLayout(resp_grp)
         rgl.setContentsMargins(20, 18, 20, 18)
@@ -303,20 +336,30 @@ class OrderDetailDialog(QDialog):
         fl = QFormLayout()
         fl.setSpacing(10)
 
+        _spn_sty = (
+            "QSpinBox, QDoubleSpinBox { background: #FFFFFF; border: 2px solid #CBD5E1; "
+            "border-radius: 8px; color: #0F172A; padding: 4px 10px; font-size: 11pt; }"
+            "QSpinBox:focus, QDoubleSpinBox:focus { border-color: #2563EB; background: #EFF6FF; }"
+            "QSpinBox::up-button, QDoubleSpinBox::up-button, "
+            "QSpinBox::down-button, QDoubleSpinBox::down-button { width: 20px; }"
+        )
+
         self.spn_cost = QDoubleSpinBox()
         self.spn_cost.setRange(1000, 99_999_999)
         self.spn_cost.setSuffix(" ₽")
         self.spn_cost.setDecimals(0)
         self.spn_cost.setSingleStep(1000)
         self.spn_cost.setValue(o.get("budget", 50000) or 50000)
-        self.spn_cost.setFixedHeight(38)
+        self.spn_cost.setFixedHeight(42)
+        self.spn_cost.setStyleSheet(_spn_sty)
         fl.addRow("Ваша цена *", self.spn_cost)
 
         self.spn_days = QSpinBox()
         self.spn_days.setRange(1, 365)
         self.spn_days.setSuffix(" дней")
         self.spn_days.setValue(3)
-        self.spn_days.setFixedHeight(38)
+        self.spn_days.setFixedHeight(42)
+        self.spn_days.setStyleSheet(_spn_sty)
         fl.addRow("Срок доставки *", self.spn_days)
         rgl.addLayout(fl)
 
@@ -326,13 +369,23 @@ class OrderDetailDialog(QDialog):
             "Здравствуйте! Готовы выполнить вашу перевозку. "
             "Имеем опыт в данном направлении..."
         )
-        self.inp_msg.setFixedHeight(90)
+        self.inp_msg.setFixedHeight(100)
+        self.inp_msg.setStyleSheet(
+            "QTextEdit { background: #FFFFFF; border: 2px solid #CBD5E1; border-radius: 8px; "
+            "color: #0F172A; padding: 6px 10px; font-size: 11pt; }"
+            "QTextEdit:focus { border-color: #2563EB; background: #EFF6FF; }"
+        )
         rgl.addWidget(self.inp_msg)
 
         btn_row = QHBoxLayout()
         btn_row.addStretch()
-        btn_send = QPushButton("Отправить отклик")
-        btn_send.setFixedSize(180, 42)
+        btn_send = QPushButton("✉  Отправить отклик")
+        btn_send.setFixedSize(200, 44)
+        btn_send.setStyleSheet(
+            "QPushButton { background: #2563EB; color: white; border: none; "
+            "border-radius: 8px; font-size: 11pt; font-weight: 700; }"
+            "QPushButton:hover { background: #1D4ED8; }"
+        )
         btn_send.clicked.connect(self._send_response)
         btn_row.addWidget(btn_send)
         rgl.addLayout(btn_row)
@@ -355,7 +408,7 @@ class OrderDetailDialog(QDialog):
         truck_model = self.inp_truck_model.text().strip()
 
         if not driver or not truck_num:
-            QMessageBox.warning(self, "Ошибка", "Введите имя водителя и номер ТС")
+            show_warning(self, "Ошибка", "Введите имя водителя и номер ТС")
             return
 
         OrderModel.assign_vehicle(self.order["id"], driver, truck_num, truck_model)
@@ -365,7 +418,7 @@ class OrderDetailDialog(QDialog):
             f"Перевозчик назначил транспорт на заявку «{self.order.get('title','')}»: "
             f"водитель {driver}, ТС {truck_num}."
         )
-        QMessageBox.information(
+        show_info(
             self, "Готово",
             "Транспорт назначен. Заказчик получил уведомление.\n"
             "После погрузки отметьте отправку груза."
@@ -380,7 +433,7 @@ class OrderDetailDialog(QDialog):
             f"Перевозчик отметил отправку груза по заявке «{self.order.get('title','')}». "
             "Пожалуйста, подтвердите отправку в системе."
         )
-        QMessageBox.information(
+        show_info(
             self, "Готово",
             "Отправка груза отмечена. Заказчик получил уведомление."
         )
@@ -394,7 +447,7 @@ class OrderDetailDialog(QDialog):
             f"Перевозчик отметил прибытие груза по заявке «{self.order.get('title','')}». "
             "Пожалуйста, подтвердите получение в системе."
         )
-        QMessageBox.information(
+        show_info(
             self, "Готово",
             "Прибытие отмечено. Заказчик должен подтвердить получение груза."
         )
@@ -406,7 +459,7 @@ class OrderDetailDialog(QDialog):
         msg  = self.inp_msg.toPlainText().strip()
 
         if cost <= 0:
-            QMessageBox.warning(self, "Ошибка", "Укажите стоимость")
+            show_warning(self, "Ошибка", "Укажите стоимость")
             return
 
         ResponseModel.create(self.order["id"], self.carrier_id, msg, cost, days)
@@ -417,7 +470,7 @@ class OrderDetailDialog(QDialog):
             f"с ценой {fmt_money(cost)}",
             self.order["id"]
         )
-        QMessageBox.information(self, "Отклик отправлен", "Ваш отклик успешно отправлен заказчику.")
+        show_info(self, "Отклик отправлен", "Ваш отклик успешно отправлен заказчику.")
         self.response_sent.emit()
         self.accept()
 
@@ -425,7 +478,7 @@ class OrderDetailDialog(QDialog):
 def _mlbl(text: str) -> QLabel:
     lbl = QLabel(text)
     lbl.setStyleSheet(
-        "color: #64748B; font-size: 9pt; font-weight: 700; text-transform: uppercase; "
+        "color: #64748B; font-size: 10pt; font-weight: 700; text-transform: uppercase; "
         "background: transparent; border: none;"
     )
     return lbl
@@ -434,7 +487,7 @@ def _mlbl(text: str) -> QLabel:
 def _card() -> QFrame:
     f = QFrame()
     f.setStyleSheet(
-        f"QFrame {{ background: {C_CARD_BG}; border: 1.5px solid {C_BORDER}; border-radius: 12px; }} QLabel {{ border: none; background: transparent; }}"
+        f"QFrame {{ background: {C_CARD_BG}; border: 1.5px solid {C_BORDER}; border-radius: 12px; }} QLabel {{ border: none; background: transparent; color: {C_TEXT}; }}"
     )
     return f
 
@@ -445,10 +498,10 @@ def _info_row(label: str, value: str) -> QWidget:
     hl = QHBoxLayout(w)
     hl.setContentsMargins(0, 0, 0, 0)
     lb = QLabel(label + ":")
-    lb.setStyleSheet(f"color: {C_TEXT_MUTED}; font-size: 9pt; font-weight: 600;")
-    lb.setFixedWidth(100)
+    lb.setStyleSheet(f"color: {C_TEXT_MUTED}; font-size: 11pt; font-weight: 600;")
+    lb.setFixedWidth(130)
     vl = QLabel(value)
-    vl.setStyleSheet(f"color: {C_TEXT}; font-size: 10pt;")
+    vl.setStyleSheet(f"color: {C_TEXT}; font-size: 12pt;")
     hl.addWidget(lb)
     hl.addWidget(vl)
     hl.addStretch()

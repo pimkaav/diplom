@@ -23,12 +23,15 @@ def main():
     app.setApplicationDisplayName("Биржа Фрахта")
     app.setOrganizationName("FreightExchange Corp")
 
-    font = QFont("Segoe UI", 10)
+    # Load saved preferences
+    theme     = tm.load()
+    font_size = tm.load_font_size()
+
+    font = QFont("Segoe UI", font_size)
     font.setHintingPreference(QFont.HintingPreference.PreferFullHinting)
     app.setFont(font)
 
-    # Apply dark theme (single theme, no switching)
-    tm.apply("dark", app)
+    tm.apply(theme, app)
 
     db = DatabaseManager()
     try:
@@ -58,5 +61,3 @@ def main():
 if __name__ == "__main__":
     main()
 
-
-# привет андрей4

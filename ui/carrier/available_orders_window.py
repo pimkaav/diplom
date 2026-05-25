@@ -1,14 +1,14 @@
 from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit,
     QPushButton, QScrollArea, QFrame, QComboBox, QStackedWidget,
-    QTextEdit, QDoubleSpinBox, QSpinBox, QFormLayout, QMessageBox
+    QTextEdit, QDoubleSpinBox, QSpinBox, QFormLayout
 )
 from PyQt6.QtCore import Qt, pyqtSignal
 from database.models import OrderModel, ResponseModel, NotificationModel
 from ui.widgets.order_card import OrderCard
 from ui.styles import (
     C_CONTENT_BG, C_TEXT_MUTED, C_TEXT, C_CARD_BG, C_BORDER, C_PRIMARY,
-    STATUS_LABELS
+    STATUS_LABELS, show_info, show_warning
 )
 from ui.widgets.progress_tracker import ProgressTracker
 from utils.helpers import fmt_money, fmt_date
@@ -55,9 +55,13 @@ class AvailableOrdersWindow(QWidget):
         hdr_row.addWidget(hdr)
         hdr_row.addStretch()
 
-        btn_refresh = QPushButton("Обновить")
-        btn_refresh.setProperty("cls", "secondary")
-        btn_refresh.setFixedSize(110, 36)
+        btn_refresh = QPushButton("🔄  Обновить")
+        btn_refresh.setFixedSize(140, 40)
+        btn_refresh.setStyleSheet(
+            "QPushButton { background: transparent; color: #2563EB; border: 2px solid #2563EB; "
+            "border-radius: 8px; font-size: 11pt; font-weight: 600; padding: 0 12px; }"
+            "QPushButton:hover { background: #EFF6FF; }"
+        )
         btn_refresh.clicked.connect(self._load)
         hdr_row.addWidget(btn_refresh)
         root.addLayout(hdr_row)
@@ -67,16 +71,20 @@ class AvailableOrdersWindow(QWidget):
         filter_row.setSpacing(10)
 
         _inp = (
-            "QLineEdit { background: #1A2540; border: 2px solid #3B82F6; border-radius: 8px; "
-            "color: #F1F5F9; padding: 4px 12px; font-size: 10pt; }"
-            "QLineEdit:focus { border-color: #60A5FA; background: #1E3050; }"
+            "QLineEdit { background: #FFFFFF; border: 2px solid #CBD5E1; border-radius: 8px; "
+            "color: #0F172A; padding: 4px 12px; font-size: 10pt; }"
+            "QLineEdit:focus { border-color: #2563EB; background: #EFF6FF; }"
         )
         _cmb = (
-            "QComboBox { background: #1A2540; border: 2px solid #3B82F6; border-radius: 8px; "
-            "color: #F1F5F9; padding: 4px 10px; font-size: 10pt; }"
-            "QComboBox:focus { border-color: #60A5FA; }"
-            "QComboBox::drop-down { border: none; width: 20px; }"
-            "QComboBox QAbstractItemView { background: #1E293B; color: #F1F5F9; border: 1px solid #3B82F6; }"
+            "QComboBox { background: #FFFFFF; border: 2px solid #CBD5E1; border-radius: 8px; "
+            "color: #0F172A; padding: 6px 12px; font-size: 11pt; }"
+            "QComboBox:focus { border-color: #2563EB; background: #EFF6FF; }"
+            "QComboBox::drop-down { border: none; width: 26px; background: transparent; }"
+            "QComboBox QAbstractItemView { background: #FFFFFF; color: #0F172A; "
+            "border: 1.5px solid #CBD5E1; selection-background-color: #EFF6FF; "
+            "selection-color: #2563EB; font-size: 11pt; outline: none; }"
+            "QComboBox QAbstractItemView::item { color: #0F172A; padding: 8px 12px; min-height: 28px; }"
+            "QComboBox QAbstractItemView::item:selected { background: #EFF6FF; color: #2563EB; }"
         )
 
         self.inp_search = QLineEdit()
@@ -190,8 +198,12 @@ class AvailableOrdersWindow(QWidget):
         tb.setSpacing(12)
 
         btn_back = QPushButton("← Доступные заявки")
-        btn_back.setProperty("cls", "secondary")
-        btn_back.setFixedHeight(36)
+        btn_back.setFixedHeight(38)
+        btn_back.setStyleSheet(
+            "QPushButton { background: transparent; color: #2563EB; border: 2px solid #2563EB; "
+            "border-radius: 8px; font-size: 11pt; font-weight: 600; padding: 0 16px; }"
+            "QPushButton:hover { background: #EFF6FF; }"
+        )
         btn_back.clicked.connect(self._go_back)
         tb.addWidget(btn_back)
         tb.addStretch()
@@ -205,7 +217,7 @@ class AvailableOrdersWindow(QWidget):
         scroll.setStyleSheet("background: transparent; border: none;")
 
         w = QWidget()
-        w.setStyleSheet("background: transparent;")
+        w.setStyleSheet(f"background: {C_CONTENT_BG};")
         wl = QVBoxLayout(w)
         wl.setContentsMargins(24, 24, 24, 24)
         wl.setSpacing(16)
@@ -216,7 +228,7 @@ class AvailableOrdersWindow(QWidget):
         if o.get("status") == "in_progress":
             prog_frame = QFrame()
             prog_frame.setStyleSheet(
-                f"QFrame {{ background: {C_CARD_BG}; border: 1.5px solid {C_BORDER}; border-radius: 12px; }} QLabel {{ border: none; background: transparent; }}"
+                f"QFrame {{ background: {C_CARD_BG}; border: 1.5px solid {C_BORDER}; border-radius: 12px; }} QLabel {{ border: none; background: transparent; color: {C_TEXT}; }}"
             )
             pfl = QVBoxLayout(prog_frame)
             pfl.setContentsMargins(16, 14, 16, 14)
@@ -227,14 +239,14 @@ class AvailableOrdersWindow(QWidget):
 
         # Title
         title_lbl = QLabel(o.get("title", ""))
-        title_lbl.setStyleSheet(f"font-size: 15pt; font-weight: 800; color: {C_TEXT};")
+        title_lbl.setStyleSheet(f"font-size: 17pt; font-weight: 800; color: {C_TEXT};")
         title_lbl.setWordWrap(True)
         wl.addWidget(title_lbl)
 
         # Details card
         detail_card = QFrame()
         detail_card.setStyleSheet(
-            f"QFrame {{ background: {C_CARD_BG}; border: 1.5px solid {C_BORDER}; border-radius: 12px; }} QLabel {{ border: none; background: transparent; }}"
+            f"QFrame {{ background: {C_CARD_BG}; border: 1.5px solid {C_BORDER}; border-radius: 12px; }} QLabel {{ border: none; background: transparent; color: {C_TEXT}; }}"
         )
         dcl = QVBoxLayout(detail_card)
         dcl.setContentsMargins(20, 16, 20, 16)
@@ -243,10 +255,10 @@ class AvailableOrdersWindow(QWidget):
         def row(label: str, value: str):
             r = QHBoxLayout()
             lb = QLabel(label + ":")
-            lb.setStyleSheet(f"color: {C_TEXT_MUTED}; font-size: 9pt; font-weight: 600;")
-            lb.setFixedWidth(160)
+            lb.setStyleSheet(f"color: {C_TEXT_MUTED}; font-size: 11pt; font-weight: 600;")
+            lb.setFixedWidth(190)
             vl = QLabel(value or "—")
-            vl.setStyleSheet(f"color: {C_TEXT}; font-size: 10pt;")
+            vl.setStyleSheet(f"color: {C_TEXT}; font-size: 12pt;")
             vl.setWordWrap(True)
             r.addWidget(lb)
             r.addWidget(vl)
@@ -286,18 +298,19 @@ class AvailableOrdersWindow(QWidget):
             cgl.setContentsMargins(16, 12, 16, 12)
             cgl.addWidget(_mlbl("Комментарий заказчика"))
             cl = QLabel(o.get("comment", ""))
+            cl.setStyleSheet(f"color: {C_TEXT}; font-size: 12pt; background: transparent;")
             cl.setWordWrap(True)
             cgl.addWidget(cl)
             wl.addWidget(cf)
 
         if o.get("special_requirements"):
             sf = QFrame()
-            sf.setStyleSheet("QFrame { background: #2D2006; border: 1.5px solid #78350F; border-radius: 10px; } QLabel { border: none; background: transparent; }")
+            sf.setStyleSheet("QFrame { background: #FFFBEB; border: 1.5px solid #D97706; border-radius: 10px; } QLabel { border: none; background: transparent; }")
             srl = QVBoxLayout(sf)
             srl.setContentsMargins(16, 12, 16, 12)
             srl.addWidget(_mlbl("⚠ Специальные требования"))
             sl = QLabel(o.get("special_requirements", ""))
-            sl.setStyleSheet("color: #FCD34D;")
+            sl.setStyleSheet("color: #92400E; font-size: 11pt; background: transparent;")
             sl.setWordWrap(True)
             srl.addWidget(sl)
             wl.addWidget(sf)
@@ -311,12 +324,12 @@ class AvailableOrdersWindow(QWidget):
         elif already and o.get("status") == "new":
             done_lbl = QFrame()
             done_lbl.setStyleSheet(
-                "QFrame { background: #14532D; border: 1.5px solid #16A34A; border-radius: 10px; } QLabel { border: none; background: transparent; }"
+                "QFrame { background: #F0FDF4; border: 1.5px solid #16A34A; border-radius: 10px; } QLabel { border: none; background: transparent; }"
             )
             dl = QHBoxLayout(done_lbl)
             dl.setContentsMargins(16, 12, 16, 12)
             done_txt = QLabel("✅ Вы уже откликнулись на эту заявку")
-            done_txt.setStyleSheet("color: #86EFAC; font-weight: 600;")
+            done_txt.setStyleSheet("color: #15803D; font-weight: 600;")
             dl.addWidget(done_txt)
             wl.addWidget(done_lbl)
 
@@ -329,7 +342,7 @@ class AvailableOrdersWindow(QWidget):
         o = order
         resp_grp = QFrame()
         resp_grp.setStyleSheet(
-            f"QFrame {{ background: {C_CARD_BG}; border: 1.5px solid {C_BORDER}; border-radius: 12px; }} QLabel {{ border: none; background: transparent; }}"
+            f"QFrame {{ background: {C_CARD_BG}; border: 1.5px solid {C_BORDER}; border-radius: 12px; }} QLabel {{ border: none; background: transparent; color: {C_TEXT}; }}"
         )
         rgl = QVBoxLayout(resp_grp)
         rgl.setContentsMargins(20, 18, 20, 18)
@@ -340,9 +353,9 @@ class AvailableOrdersWindow(QWidget):
         fl.setSpacing(10)
 
         _spn_sty = (
-            "QSpinBox, QDoubleSpinBox { background: #1A2540; border: 2px solid #3B82F6; "
-            "border-radius: 8px; color: #F1F5F9; padding: 4px 10px; font-size: 10pt; }"
-            "QSpinBox:focus, QDoubleSpinBox:focus { border-color: #60A5FA; background: #1E3050; }"
+            "QSpinBox, QDoubleSpinBox { background: #FFFFFF; border: 2px solid #CBD5E1; "
+            "border-radius: 8px; color: #0F172A; padding: 4px 10px; font-size: 11pt; }"
+            "QSpinBox:focus, QDoubleSpinBox:focus { border-color: #2563EB; background: #EFF6FF; }"
             "QSpinBox::up-button, QDoubleSpinBox::up-button, "
             "QSpinBox::down-button, QDoubleSpinBox::down-button { width: 20px; }"
         )
@@ -374,9 +387,9 @@ class AvailableOrdersWindow(QWidget):
         )
         self.inp_msg.setFixedHeight(90)
         self.inp_msg.setStyleSheet(
-            "QTextEdit { background: #1A2540; border: 2px solid #3B82F6; border-radius: 8px; "
-            "color: #F1F5F9; padding: 6px 10px; font-size: 10pt; }"
-            "QTextEdit:focus { border-color: #60A5FA; background: #1E3050; }"
+            "QTextEdit { background: #FFFFFF; border: 2px solid #CBD5E1; border-radius: 8px; "
+            "color: #0F172A; padding: 6px 10px; font-size: 11pt; }"
+            "QTextEdit:focus { border-color: #2563EB; background: #EFF6FF; }"
         )
         rgl.addWidget(self.inp_msg)
 
@@ -407,7 +420,7 @@ class AvailableOrdersWindow(QWidget):
         carrier_id = self.current_user["id"]
 
         if cost <= 0:
-            QMessageBox.warning(self, "Ошибка", "Укажите стоимость")
+            show_warning(self, "Ошибка", "Укажите стоимость")
             return
 
         ResponseModel.create(order["id"], carrier_id, msg, cost, days)
@@ -418,7 +431,7 @@ class AvailableOrdersWindow(QWidget):
             f"с ценой {fmt_money(cost)}",
             order["id"]
         )
-        QMessageBox.information(self, "Отклик отправлен", "Ваш отклик успешно отправлен заказчику.")
+        show_info(self, "Отклик отправлен", "Ваш отклик успешно отправлен заказчику.")
         self.response_sent.emit()
         self._go_back()
 
@@ -431,7 +444,7 @@ class AvailableOrdersWindow(QWidget):
 def _mlbl(text: str) -> QLabel:
     lbl = QLabel(text)
     lbl.setStyleSheet(
-        "color: #64748B; font-size: 9pt; font-weight: 700; text-transform: uppercase; "
+        "color: #64748B; font-size: 10pt; font-weight: 700; text-transform: uppercase; "
         "background: transparent; border: none;"
     )
     return lbl
@@ -441,6 +454,6 @@ def _card() -> QFrame:
     from ui.styles import C_CARD_BG, C_BORDER
     f = QFrame()
     f.setStyleSheet(
-        f"QFrame {{ background: {C_CARD_BG}; border: 1.5px solid {C_BORDER}; border-radius: 12px; }} QLabel {{ border: none; background: transparent; }}"
+        f"QFrame {{ background: {C_CARD_BG}; border: 1.5px solid {C_BORDER}; border-radius: 12px; }} QLabel {{ border: none; background: transparent; color: {C_TEXT}; }}"
     )
     return f

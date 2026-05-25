@@ -1,12 +1,12 @@
-# ─── Light palette ────────────────────────────────────────────────
+# ─── Light palette (default / only theme) ─────────────────────────
 L = {
     "primary":        "#2563EB",
     "primary_dark":   "#1D4ED8",
     "primary_light":  "#EFF6FF",
-    "sidebar_bg":     "#0F172A",
-    "sidebar_hover":  "#1E293B",
-    "sidebar_active": "#2563EB",
-    "content_bg":     "#F1F5F9",
+    "sidebar_bg":     "#FFFFFF",   # white sidebar
+    "sidebar_hover":  "#F1F5F9",   # soft hover
+    "sidebar_active": "#EFF6FF",   # light-blue active
+    "content_bg":     "#F1F5F9",   # very light gray content
     "card_bg":        "#FFFFFF",
     "border":         "#E2E8F0",
     "text":           "#0F172A",
@@ -19,7 +19,7 @@ L = {
     "danger_light":   "#FEF2F2",
     "info":           "#0EA5E9",
     "input_bg":       "#FFFFFF",
-    "input_border":   "#E2E8F0",
+    "input_border":   "#CBD5E1",
     "input_focus":    "#2563EB",
     "combo_drop":     "#FFFFFF",
     "combo_text":     "#0F172A",
@@ -29,7 +29,7 @@ L = {
     "progress_track": "#E2E8F0",
 }
 
-# ─── Dark palette ─────────────────────────────────────────────────
+# ─── Dark palette (kept for compatibility) ────────────────────────
 D = {
     "primary":        "#3B82F6",
     "primary_dark":   "#2563EB",
@@ -61,10 +61,10 @@ D = {
 }
 
 STATUS_COLORS = {
-    "new":         ("#1E3A5F", "#93C5FD"),
-    "in_progress": ("#2D2006", "#FCD34D"),
-    "completed":   ("#14532D", "#86EFAC"),
-    "cancelled":   ("#450A0A", "#FCA5A5"),
+    "new":         ("#DBEAFE", "#1D4ED8"),
+    "in_progress": ("#FEF9C3", "#92400E"),
+    "completed":   ("#DCFCE7", "#15803D"),
+    "cancelled":   ("#FEE2E2", "#B91C1C"),
 }
 STATUS_LABELS = {
     "new":         "Новый",
@@ -87,32 +87,15 @@ PROGRESS_LABELS = {
     "completed":        "Завершено",
 }
 
-# Expose convenience aliases — always use the dark palette (app uses dark theme only)
-C_PRIMARY        = D["primary"]
-C_PRIMARY_DARK   = D["primary_dark"]
-C_PRIMARY_LIGHT  = D["primary_light"]
-C_SIDEBAR_BG     = D["sidebar_bg"]
-C_SIDEBAR_HOVER  = D["sidebar_hover"]
-C_SIDEBAR_ACTIVE = D["sidebar_active"]
-C_CONTENT_BG     = D["content_bg"]
-C_CARD_BG        = D["card_bg"]
-C_BORDER         = D["border"]
-C_TEXT           = D["text"]
-C_TEXT_MUTED     = D["text_muted"]
-C_SUCCESS        = D["success"]
-C_WARNING        = D["warning"]
-C_DANGER         = D["danger"]
-C_INFO           = D["info"]
-NAV_BTN_STYLE    = ""   # filled in below
-
 
 def _build(p: dict) -> str:
+    focus_bg = p["primary_light"]
     return f"""
 /* ══════════════════════════════════════════════════════════
    GLOBAL                                                    */
 QWidget {{
     font-family: "Segoe UI", "Arial", sans-serif;
-    font-size: 10pt;
+    font-size: 11pt;
     color: {p["text"]};
     outline: 0;
 }}
@@ -141,16 +124,18 @@ QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal {{ width: 0; }}
 /* ── QLineEdit / QTextEdit / QPlainTextEdit ─────────────── */
 QLineEdit, QTextEdit, QPlainTextEdit {{
     background: {p["input_bg"]};
-    border: 2px solid {p["input_border"]};
+    border: 1.5px solid {p["input_border"]};
     border-radius: 8px;
     padding: 8px 12px;
     color: {p["text"]};
     selection-background-color: {p["primary"]};
     selection-color: white;
+    font-size: 11pt;
 }}
 QLineEdit:focus, QTextEdit:focus, QPlainTextEdit:focus {{
     border-color: {p["input_focus"]};
-    background: #1E3050;
+    border-width: 2px;
+    background: {focus_bg};
 }}
 QLineEdit:disabled, QTextEdit:disabled {{
     background: {p["content_bg"]}; color: {p["text_muted"]};
@@ -159,12 +144,13 @@ QLineEdit:disabled, QTextEdit:disabled {{
 /* ── QSpinBox / QDoubleSpinBox ──────────────────────────── */
 QSpinBox, QDoubleSpinBox {{
     background: {p["input_bg"]};
-    border: 2px solid {p["input_border"]};
+    border: 1.5px solid {p["input_border"]};
     border-radius: 8px;
-    padding: 6px 10px;
+    padding: 7px 10px;
     color: {p["text"]};
+    font-size: 11pt;
 }}
-QSpinBox:focus, QDoubleSpinBox:focus {{ border-color: {p["input_focus"]}; background: #1E3050; }}
+QSpinBox:focus, QDoubleSpinBox:focus {{ border-color: {p["input_focus"]}; border-width: 2px; background: {focus_bg}; }}
 QSpinBox::up-button, QDoubleSpinBox::up-button,
 QSpinBox::down-button, QDoubleSpinBox::down-button {{
     background: transparent; border: none; width: 18px;
@@ -173,13 +159,14 @@ QSpinBox::down-button, QDoubleSpinBox::down-button {{
 /* ── QComboBox ──────────────────────────────────────────── */
 QComboBox {{
     background: {p["input_bg"]};
-    border: 2px solid {p["input_border"]};
+    border: 1.5px solid {p["input_border"]};
     border-radius: 8px;
-    padding: 7px 36px 7px 12px;
+    padding: 8px 36px 8px 12px;
     color: {p["text"]};
     min-width: 100px;
+    font-size: 11pt;
 }}
-QComboBox:focus {{ border-color: {p["input_focus"]}; background: #1E3050; }}
+QComboBox:focus {{ border-color: {p["input_focus"]}; border-width: 2px; background: {focus_bg}; }}
 QComboBox:hover {{ border-color: {p["primary"]}; }}
 QComboBox::drop-down {{
     border: none; width: 30px; background: transparent;
@@ -204,8 +191,8 @@ QComboBox QAbstractItemView {{
 QComboBox QAbstractItemView::item {{
     color: {p["combo_text"]};
     background: transparent;
-    padding: 8px 12px;
-    min-height: 28px;
+    padding: 9px 12px;
+    min-height: 30px;
     border-radius: 6px;
 }}
 QComboBox QAbstractItemView::item:selected,
@@ -219,10 +206,11 @@ QDateEdit {{
     background: {p["input_bg"]};
     border: 1.5px solid {p["input_border"]};
     border-radius: 8px;
-    padding: 7px 12px;
+    padding: 8px 12px;
     color: {p["text"]};
+    font-size: 11pt;
 }}
-QDateEdit:focus {{ border-color: {p["input_focus"]}; }}
+QDateEdit:focus {{ border-color: {p["input_focus"]}; border-width: 2px; }}
 QDateEdit::drop-down {{ border: none; width: 26px; background: transparent; }}
 
 /* ── QCalendarWidget ────────────────────────────────────── */
@@ -240,13 +228,13 @@ QPushButton {{
     color: white;
     border: none;
     border-radius: 8px;
-    padding: 9px 22px;
+    padding: 10px 24px;
     font-weight: 600;
-    font-size: 10pt;
-    min-height: 34px;
+    font-size: 11pt;
+    min-height: 36px;
 }}
 QPushButton:hover    {{ background-color: {p["primary_dark"]}; }}
-QPushButton:pressed  {{ background-color: {p["primary_dark"]}; opacity: 0.85; }}
+QPushButton:pressed  {{ background-color: {p["primary_dark"]}; }}
 QPushButton:disabled {{ background-color: {p["border"]}; color: {p["text_muted"]}; }}
 QPushButton:focus    {{ outline: none; border: none; }}
 
@@ -281,27 +269,25 @@ QPushButton[cls="flat"]:hover {{ background-color: {p["border"]}; color: {p["tex
 /* Icon-only small */
 QPushButton[cls="icon"] {{
     background: transparent; border: none; padding: 4px;
-    min-width: 28px; min-height: 28px;
-    border-radius: 6px;
+    min-width: 30px; min-height: 30px; border-radius: 6px;
 }}
 QPushButton[cls="icon"]:hover {{ background: {p["border"]}; }}
 
 /* ── QLabel ─────────────────────────────────────────────── */
 QLabel {{ background: transparent; color: {p["text"]}; border: none; outline: none; }}
-QLabel[cls="heading"]    {{ font-size: 22pt; font-weight: 800; color: {p["text"]}; }}
-QLabel[cls="subheading"] {{ font-size: 13pt; font-weight: 700; color: {p["text"]}; }}
-QLabel[cls="muted"]      {{ color: {p["text_muted"]}; font-size: 9pt; }}
-/* heading property used by dashboards */
-QLabel[heading="true"]   {{ font-size: 22pt; font-weight: 800; color: {p["text"]}; }}
+QLabel[cls="heading"]    {{ font-size: 24pt; font-weight: 800; color: {p["text"]}; }}
+QLabel[cls="subheading"] {{ font-size: 14pt; font-weight: 700; color: {p["text"]}; }}
+QLabel[cls="muted"]      {{ color: {p["text_muted"]}; font-size: 10pt; }}
+QLabel[heading="true"]   {{ font-size: 24pt; font-weight: 800; color: {p["text"]}; }}
 QLabel[cls="badge-new"]  {{
     background: {p["primary_light"]}; color: {p["primary"]};
-    border-radius: 10px; padding: 2px 10px;
-    font-size: 8pt; font-weight: 700;
+    border-radius: 10px; padding: 3px 10px;
+    font-size: 9pt; font-weight: 700;
 }}
 QLabel[cls="badge-done"] {{
     background: {p["success_light"]}; color: {p["success"]};
-    border-radius: 10px; padding: 2px 10px;
-    font-size: 8pt; font-weight: 700;
+    border-radius: 10px; padding: 3px 10px;
+    font-size: 9pt; font-weight: 700;
 }}
 
 /* ── QTabWidget ─────────────────────────────────────────── */
@@ -313,7 +299,7 @@ QTabWidget::pane {{
 }}
 QTabBar::tab {{
     background: transparent; color: {p["text_muted"]};
-    padding: 10px 20px; border: none; font-weight: 500;
+    padding: 11px 22px; border: none; font-weight: 500; font-size: 11pt;
 }}
 QTabBar::tab:selected {{ color: {p["primary"]}; border-bottom: 2px solid {p["primary"]}; font-weight: 700; }}
 QTabBar::tab:hover {{ color: {p["text"]}; }}
@@ -327,15 +313,15 @@ QTableWidget {{
     color: {p["text"]};
     alternate-background-color: {p["tbl_alt"]};
 }}
-QTableWidget::item {{ padding: 8px; border: none; color: {p["text"]}; }}
+QTableWidget::item {{ padding: 10px; border: none; color: {p["text"]}; font-size: 11pt; }}
 QTableWidget::item:selected {{
     background: {p["primary_light"]}; color: {p["text"]};
 }}
 QHeaderView::section {{
     background: {p["content_bg"]}; color: {p["text_muted"]};
-    padding: 10px 12px; border: none;
+    padding: 11px 12px; border: none;
     border-bottom: 1.5px solid {p["border"]};
-    font-weight: 700; font-size: 9pt;
+    font-weight: 700; font-size: 10pt;
 }}
 
 /* ── QGroupBox ──────────────────────────────────────────── */
@@ -343,19 +329,20 @@ QGroupBox {{
     background: {p["card_bg"]};
     border: 1.5px solid {p["border"]};
     border-radius: 10px;
-    margin-top: 14px;
-    padding-top: 10px;
+    margin-top: 16px;
+    padding-top: 12px;
     font-weight: 600; color: {p["text"]};
 }}
 QGroupBox::title {{
     subcontrol-origin: margin; subcontrol-position: top left;
     left: 14px; top: -2px; padding: 0 6px;
-    color: {p["text_muted"]}; font-size: 9pt; font-weight: 700;
+    color: {p["text_muted"]}; font-size: 10pt; font-weight: 700;
     text-transform: uppercase; letter-spacing: 0.5px;
+    background: {p["card_bg"]};
 }}
 
 /* ── QCheckBox / QRadioButton ───────────────────────────── */
-QCheckBox, QRadioButton {{ spacing: 8px; color: {p["text"]}; background: transparent; }}
+QCheckBox, QRadioButton {{ spacing: 8px; color: {p["text"]}; background: transparent; font-size: 11pt; }}
 QCheckBox::indicator, QRadioButton::indicator {{
     width: 18px; height: 18px;
     border: 1.5px solid {p["input_border"]};
@@ -375,7 +362,7 @@ QScrollArea {{ border: none; background: transparent; }}
 QListWidget {{
     background: {p["card_bg"]}; border: 1.5px solid {p["border"]}; border-radius: 8px; outline: none;
 }}
-QListWidget::item {{ padding: 10px 14px; border-bottom: 1px solid {p["border"]}; color: {p["text"]}; }}
+QListWidget::item {{ padding: 11px 14px; border-bottom: 1px solid {p["border"]}; color: {p["text"]}; font-size: 11pt; }}
 QListWidget::item:selected {{ background: {p["primary_light"]}; color: {p["primary"]}; }}
 QListWidget::item:hover {{ background: {p["tbl_alt"]}; }}
 
@@ -386,12 +373,44 @@ QSplitter::handle:horizontal {{ width: 1px; }}
 /* ── QToolTip ───────────────────────────────────────────── */
 QToolTip {{
     background: {p["text"]}; color: {p["card_bg"]};
-    border: none; border-radius: 6px; padding: 6px 10px; font-size: 9pt;
+    border: none; border-radius: 6px; padding: 7px 12px; font-size: 10pt;
 }}
 
 /* ── QMessageBox ────────────────────────────────────────── */
-QMessageBox {{ background: {p["card_bg"]}; }}
-QMessageBox QLabel {{ color: {p["text"]}; }}
+QMessageBox {{
+    background: {p["card_bg"]};
+}}
+QMessageBox QLabel {{
+    color: {p["text"]};
+    font-size: 11pt;
+    background: transparent;
+    border: none;
+}}
+QMessageBox QPushButton {{
+    background: {p["primary"]};
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 20px;
+    font-size: 11pt;
+    font-weight: 600;
+    min-width: 80px;
+    min-height: 34px;
+}}
+QMessageBox QPushButton:hover {{ background: {p["primary_dark"]}; }}
+QMessageBox QPushButton:default {{
+    background: {p["primary_dark"]};
+}}
+QMessageBox QPushButton[text="Cancel"],
+QMessageBox QPushButton[text="Отмена"] {{
+    background: transparent;
+    color: {p["primary"]};
+    border: 1.5px solid {p["primary"]};
+}}
+QMessageBox QPushButton[text="Cancel"]:hover,
+QMessageBox QPushButton[text="Отмена"]:hover {{
+    background: {p["primary_light"]};
+}}
 
 /* ── QProgressBar ───────────────────────────────────────── */
 QProgressBar {{
@@ -400,45 +419,62 @@ QProgressBar {{
 }}
 QProgressBar::chunk {{ background: {p["primary"]}; border-radius: 4px; }}
 
-/* ── QFrame — reset default box border, explicit borders via setStyleSheet ── */
+/* ── QFrame ── */
 QFrame {{ border: none; }}
-
-/* ── QFrame (cards) ─────────────────────────────────────── */
 QFrame[cls="card"] {{
     background: {p["card_bg"]}; border: 1.5px solid {p["border"]}; border-radius: 12px;
 }}
-QFrame[cls="card-hover"]:hover {{ border-color: #93C5FD; }}
+QFrame[cls="card-hover"]:hover {{ border-color: {p["primary"]}; }}
 
-/* ── Sidebar ────────────────────────────────────────────── */
-QWidget[cls="sidebar"] {{ background-color: {p["sidebar_bg"]}; }}
-QWidget[cls="sidebar_card"] {{
-    background: rgba(255,255,255,0.06); border-radius: 10px; border: none;
+/* ── Sidebar (light version) ────────────────────────────── */
+QWidget[cls="sidebar"] {{
+    background-color: {p["sidebar_bg"]};
+    border-right: 1px solid {p["border"]};
 }}
-QLabel[cls="sidebar_name"] {{ color: #F1F5F9; font-weight: 600; font-size: 10pt; background: transparent; border: none; }}
-QLabel[cls="sidebar_role"] {{ color: #94A3B8; font-size: 8pt; background: transparent; border: none; }}
+QWidget[cls="sidebar_card"] {{
+    background: {p["tbl_alt"]}; border-radius: 10px; border: 1px solid {p["border"]};
+}}
+QLabel[cls="sidebar_name"] {{
+    color: {p["text"]}; font-weight: 700; font-size: 11pt;
+    background: transparent; border: none;
+}}
+QLabel[cls="sidebar_role"] {{
+    color: {p["text_muted"]}; font-size: 9pt;
+    background: transparent; border: none;
+}}
 
 QPushButton[cls="nav"] {{
-    background-color: transparent; color: #94A3B8;
-    border: none; border-radius: 8px; padding: 12px 16px;
-    text-align: left; font-size: 10pt; font-weight: 500; min-height: 40px;
+    background-color: transparent;
+    color: {p["text_muted"]};
+    border: none; border-radius: 8px;
+    padding: 12px 16px;
+    text-align: left; font-size: 11pt; font-weight: 500; min-height: 44px;
 }}
-QPushButton[cls="nav"]:hover {{ background-color: {p["sidebar_hover"]}; color: #F1F5F9; }}
+QPushButton[cls="nav"]:hover {{
+    background-color: {p["sidebar_hover"]}; color: {p["text"]};
+}}
 QPushButton[cls="nav_active"] {{
-    background-color: {p["sidebar_active"]}; color: white;
-    border: none; border-radius: 8px; padding: 12px 16px;
-    text-align: left; font-size: 10pt; font-weight: 700; min-height: 40px;
+    background-color: {p["sidebar_active"]};
+    color: {p["primary"]};
+    border: none; border-radius: 8px;
+    padding: 12px 16px;
+    text-align: left; font-size: 11pt; font-weight: 700; min-height: 44px;
 }}
 QPushButton[cls="logout"] {{
-    background: transparent; color: #EF4444; border: none;
-    border-radius: 8px; padding: 10px 16px; text-align: left;
-    font-size: 10pt; min-height: 40px;
+    background: transparent; color: {p["danger"]}; border: none;
+    border-radius: 8px; padding: 11px 16px; text-align: left;
+    font-size: 11pt; min-height: 44px;
 }}
-QPushButton[cls="logout"]:hover {{ background: rgba(239,68,68,0.1); }}
+QPushButton[cls="logout"]:hover {{ background: {p["danger_light"]}; }}
 """
 
 
 _LIGHT_STYLE: str | None = None
 _DARK_STYLE:  str | None = None
+
+# Force re-build on import (clears cached style after any edit)
+_LIGHT_STYLE = None
+_DARK_STYLE  = None
 
 
 def get_style(theme: str = "light") -> str:
@@ -456,29 +492,121 @@ def palette(theme: str = "light") -> dict:
     return D if theme == "dark" else L
 
 
-# Legacy aliases so existing code doesn't break
-GLOBAL_STYLE = get_style("light")
+# ── Module-level aliases (always light) ───────────────────────────
+_p = L
+GLOBAL_STYLE     = get_style("light")
 
-# Actual nav button stylesheet — used by dashboards that call btn.setStyleSheet(NAV_BTN_STYLE)
-NAV_BTN_STYLE = """
-QPushButton {
+C_PRIMARY        = _p["primary"]
+C_PRIMARY_DARK   = _p["primary_dark"]
+C_PRIMARY_LIGHT  = _p["primary_light"]
+C_SIDEBAR_BG     = _p["sidebar_bg"]
+C_SIDEBAR_HOVER  = _p["sidebar_hover"]
+C_SIDEBAR_ACTIVE = _p["sidebar_active"]
+C_CONTENT_BG     = _p["content_bg"]
+C_CARD_BG        = _p["card_bg"]
+C_BORDER         = _p["border"]
+C_TEXT           = _p["text"]
+C_TEXT_MUTED     = _p["text_muted"]
+C_SUCCESS        = _p["success"]
+C_WARNING        = _p["warning"]
+C_DANGER         = _p["danger"]
+C_INFO           = _p["info"]
+
+# ── QMessageBox white-theme helpers ──────────────────────────────────
+_MB_STYLE = """
+QMessageBox {
+    background: #FFFFFF;
+    font-family: "Segoe UI", "Arial", sans-serif;
+}
+QMessageBox QLabel {
+    color: #0F172A;
+    font-size: 11pt;
+    background: transparent;
+    border: none;
+    min-width: 280px;
+}
+QMessageBox QPushButton {
+    background: #2563EB;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 22px;
+    font-size: 11pt;
+    font-weight: 600;
+    min-width: 88px;
+    min-height: 36px;
+}
+QMessageBox QPushButton:hover { background: #1D4ED8; }
+QMessageBox QPushButton:default { background: #1D4ED8; }
+"""
+
+
+def show_info(parent, title: str, text: str) -> None:
+    """Show a white-themed information dialog."""
+    from PyQt6.QtWidgets import QMessageBox as _MB
+    mb = _MB(parent)
+    mb.setWindowTitle(title)
+    mb.setText(text)
+    mb.setIcon(_MB.Icon.Information)
+    mb.setStyleSheet(_MB_STYLE)
+    mb.exec()
+
+
+def show_warning(parent, title: str, text: str) -> None:
+    """Show a white-themed warning dialog."""
+    from PyQt6.QtWidgets import QMessageBox as _MB
+    mb = _MB(parent)
+    mb.setWindowTitle(title)
+    mb.setText(text)
+    mb.setIcon(_MB.Icon.Warning)
+    mb.setStyleSheet(_MB_STYLE)
+    mb.exec()
+
+
+def show_question(parent, title: str, text: str) -> bool:
+    """Show a white-themed Yes/No question dialog. Returns True if Yes."""
+    from PyQt6.QtWidgets import QMessageBox as _MB
+    mb = _MB(parent)
+    mb.setWindowTitle(title)
+    mb.setText(text)
+    mb.setIcon(_MB.Icon.Question)
+    mb.setStandardButtons(_MB.StandardButton.Yes | _MB.StandardButton.No)
+    mb.setDefaultButton(_MB.StandardButton.Yes)
+    mb.setStyleSheet(_MB_STYLE + """
+QMessageBox QPushButton[text="No"],
+QMessageBox QPushButton[text="Нет"] {
+    background: transparent;
+    color: #2563EB;
+    border: 1.5px solid #2563EB;
+}
+QMessageBox QPushButton[text="No"]:hover,
+QMessageBox QPushButton[text="Нет"]:hover {
+    background: #EFF6FF;
+}
+""")
+    return mb.exec() == _MB.StandardButton.Yes
+
+
+# Light-compatible sidebar nav button style
+NAV_BTN_STYLE = f"""
+QPushButton {{
     background-color: transparent;
-    color: #94A3B8;
+    color: {_p["text_muted"]};
     border: none;
     border-radius: 8px;
     padding: 12px 16px;
     text-align: left;
-    font-size: 10pt;
+    font-size: 11pt;
     font-weight: 500;
-    min-height: 40px;
-}
-QPushButton:hover {
-    background-color: #1E293B;
-    color: #F1F5F9;
-}
-QPushButton[active="true"] {
-    background-color: #2563EB;
-    color: white;
+    min-height: 44px;
+}}
+QPushButton:hover {{
+    background-color: {_p["sidebar_hover"]};
+    color: {_p["text"]};
+}}
+QPushButton[active="true"] {{
+    background-color: {_p["sidebar_active"]};
+    color: {_p["primary"]};
     font-weight: 700;
-}
+}}
 """

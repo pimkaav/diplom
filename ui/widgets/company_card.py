@@ -26,31 +26,31 @@ class CompanyCard(QFrame):
                 border-radius: 12px;
             }}
             QFrame:hover {{ border-color: #93C5FD; }}
-            QLabel {{ border: none; background: transparent; }}
+            QLabel {{ border: none; background: transparent; color: {C_TEXT}; }}
         """)
 
         root = QVBoxLayout(self)
-        root.setContentsMargins(18, 16, 18, 16)
-        root.setSpacing(10)
+        root.setContentsMargins(20, 18, 20, 18)
+        root.setSpacing(12)
 
         # ── Header ───────────────────────────────────────────────
         hdr = QHBoxLayout()
         avatar = QLabel("🏢")
-        avatar.setStyleSheet("font-size: 26pt;")
-        avatar.setFixedSize(46, 46)
+        avatar.setStyleSheet("font-size: 28pt;")
+        avatar.setFixedSize(52, 52)
         hdr.addWidget(avatar)
 
         info = QVBoxLayout()
-        info.setSpacing(2)
+        info.setSpacing(3)
         name_lbl = QLabel(self.company.get("company_name", "Компания"))
-        name_lbl.setStyleSheet(f"font-weight: 700; font-size: 12pt; color: {C_TEXT};")
+        name_lbl.setStyleSheet(f"font-weight: 700; font-size: 13pt; color: {C_TEXT};")
         info.addWidget(name_lbl)
 
         verified = self.company.get("is_verified", 0)
         rating   = self.company.get("rating", 0.0)
         r_count  = self.company.get("rating_count", 0)
         star_lbl = QLabel(stars_text(rating, r_count))
-        star_lbl.setStyleSheet(f"color: #F59E0B; font-size: 10pt;")
+        star_lbl.setStyleSheet(f"color: #F59E0B; font-size: 11pt;")
         info.addWidget(star_lbl)
         hdr.addLayout(info)
         hdr.addStretch()
@@ -58,7 +58,7 @@ class CompanyCard(QFrame):
         if verified:
             vbadge = QLabel("✓ Проверен")
             vbadge.setStyleSheet(
-                "background: #14532D; color: #86EFAC; border: 2px solid #22C55E; "
+                "background: #F0FDF4; color: #15803D; border: 2px solid #16A34A; "
                 "border-radius: 10px; padding: 4px 12px; font-size: 9pt; font-weight: 700;"
             )
             hdr.addWidget(vbadge, alignment=Qt.AlignmentFlag.AlignTop)
@@ -72,7 +72,7 @@ class CompanyCard(QFrame):
         def stat(icon: str, value: str, label: str) -> QFrame:
             box = QFrame()
             box.setStyleSheet(
-                f"QFrame {{ background: {C_CONTENT_BG}; border: 1px solid {C_BORDER}; border-radius: 8px; }} QLabel {{ border: none; background: transparent; }}"
+                f"QFrame {{ background: {C_CONTENT_BG}; border: 1px solid {C_BORDER}; border-radius: 8px; }} QLabel {{ border: none; background: transparent; color: {C_TEXT}; }}"
             )
             lay = QVBoxLayout(box)
             lay.setContentsMargins(12, 8, 12, 8)
@@ -97,7 +97,7 @@ class CompanyCard(QFrame):
         desc = self.company.get("description", "")
         if desc:
             lbl = QLabel(truncate(desc, 120))
-            lbl.setStyleSheet(f"color: {C_TEXT_MUTED}; font-size: 9pt;")
+            lbl.setStyleSheet(f"color: {C_TEXT_MUTED}; font-size: 10pt;")
             lbl.setWordWrap(True)
             root.addWidget(lbl)
 
@@ -126,11 +126,11 @@ class CompanyCard(QFrame):
 
         btn_detail = QPushButton("Подробнее →")
         btn_detail.setStyleSheet(
-            "QPushButton { background: transparent; color: #3B82F6; border: 1.5px solid #3B82F6; "
-            "border-radius: 8px; font-size: 9pt; font-weight: 600; padding: 0 12px; }"
+            "QPushButton { background: transparent; color: #3B82F6; border: 2px solid #3B82F6; "
+            "border-radius: 8px; font-size: 10pt; font-weight: 600; padding: 0 14px; }"
             "QPushButton:hover { background: rgba(59,130,246,0.14); }"
         )
-        btn_detail.setFixedHeight(34)
+        btn_detail.setFixedHeight(36)
         btn_detail.clicked.connect(lambda: self.clicked.emit(self.company))
         btns.addWidget(btn_detail)
 
@@ -138,10 +138,10 @@ class CompanyCard(QFrame):
             btn_chat = QPushButton("💬 Написать")
             btn_chat.setStyleSheet(
                 "QPushButton { background: #2563EB; color: white; border: none; "
-                "border-radius: 8px; font-size: 9pt; font-weight: 600; padding: 0 14px; }"
+                "border-radius: 8px; font-size: 10pt; font-weight: 600; padding: 0 14px; }"
                 "QPushButton:hover { background: #1D4ED8; }"
             )
-            btn_chat.setFixedHeight(34)
+            btn_chat.setFixedHeight(36)
             btn_chat.clicked.connect(lambda: self.chat_clicked.emit(self.company))
             btns.addWidget(btn_chat)
 

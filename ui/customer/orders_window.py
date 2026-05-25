@@ -1,6 +1,6 @@
 from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton,
-    QScrollArea, QFrame, QDialog, QTabWidget, QMessageBox,
+    QScrollArea, QFrame, QDialog, QTabWidget,
     QComboBox, QTextEdit, QStackedWidget
 )
 from PyQt6.QtCore import Qt, pyqtSignal
@@ -12,7 +12,7 @@ from ui.widgets.order_card import OrderCard
 from ui.widgets.progress_tracker import ProgressTracker
 from ui.styles import (
     C_CONTENT_BG, C_TEXT_MUTED, C_CARD_BG, C_BORDER, C_TEXT,
-    C_PRIMARY, STATUS_LABELS
+    C_PRIMARY, STATUS_LABELS, show_info, show_warning, show_question
 )
 from utils.helpers import fmt_money, fmt_date, stars_text
 
@@ -60,7 +60,7 @@ class OrderDetailDialog(QDialog):
         if self.order.get("status") in ("in_progress", "completed"):
             prog_frame = QFrame()
             prog_frame.setStyleSheet(
-                f"QFrame {{ background: {C_CARD_BG}; border: 1.5px solid {C_BORDER}; border-radius: 12px; }} QLabel {{ border: none; background: transparent; }}"
+                f"QFrame {{ background: {C_CARD_BG}; border: 1.5px solid {C_BORDER}; border-radius: 12px; }} QLabel {{ border: none; background: transparent; color: {C_TEXT}; }}"
             )
             pfl = QVBoxLayout(prog_frame)
             pfl.setContentsMargins(16, 14, 16, 14)
@@ -77,7 +77,7 @@ class OrderDetailDialog(QDialog):
 
         grid = QFrame()
         grid.setStyleSheet(
-            f"QFrame {{ background: {C_CARD_BG}; border: 1.5px solid {C_BORDER}; border-radius: 12px; }} QLabel {{ border: none; background: transparent; }}"
+            f"QFrame {{ background: {C_CARD_BG}; border: 1.5px solid {C_BORDER}; border-radius: 12px; }} QLabel {{ border: none; background: transparent; color: {C_TEXT}; }}"
         )
         gl = QVBoxLayout(grid)
         gl.setContentsMargins(20, 16, 20, 16)
@@ -88,10 +88,10 @@ class OrderDetailDialog(QDialog):
         def row(label: str, value: str):
             r = QHBoxLayout()
             lb = QLabel(label + ":")
-            lb.setStyleSheet(f"color: {C_TEXT_MUTED}; font-size: 9pt; font-weight: 600;")
-            lb.setFixedWidth(160)
+            lb.setStyleSheet(f"color: {C_TEXT_MUTED}; font-size: 11pt; font-weight: 600;")
+            lb.setFixedWidth(190)
             vl = QLabel(value or "—")
-            vl.setStyleSheet(f"color: {C_TEXT}; font-size: 10pt;")
+            vl.setStyleSheet(f"color: {C_TEXT}; font-size: 12pt;")
             vl.setWordWrap(True)
             r.addWidget(lb)
             r.addWidget(vl)
@@ -119,7 +119,7 @@ class OrderDetailDialog(QDialog):
         if o.get("driver_name") or o.get("truck_number"):
             veh = QFrame()
             veh.setStyleSheet(
-                f"QFrame {{ background: {C_CARD_BG}; border: 1.5px solid {C_BORDER}; border-radius: 12px; }} QLabel {{ border: none; background: transparent; }}"
+                f"QFrame {{ background: {C_CARD_BG}; border: 1.5px solid {C_BORDER}; border-radius: 12px; }} QLabel {{ border: none; background: transparent; color: {C_TEXT}; }}"
             )
             vl2 = QVBoxLayout(veh)
             vl2.setContentsMargins(20, 14, 20, 14)
@@ -157,12 +157,12 @@ class OrderDetailDialog(QDialog):
 
         if o.get("special_requirements"):
             sf = QFrame()
-            sf.setStyleSheet("QFrame { background: #2D2006; border: 1.5px solid #78350F; border-radius: 10px; } QLabel { border: none; background: transparent; }")
+            sf.setStyleSheet("QFrame { background: #FFFBEB; border: 1.5px solid #D97706; border-radius: 10px; } QLabel { border: none; background: transparent; }")
             sfl = QVBoxLayout(sf)
             sfl.setContentsMargins(16, 12, 16, 12)
             sfl.addWidget(_muted("⚠ Специальные требования"))
             sl = QLabel(o["special_requirements"])
-            sl.setStyleSheet("color: #FCD34D;")
+            sl.setStyleSheet("color: #92400E;")
             sl.setWordWrap(True)
             sfl.addWidget(sl)
             l.addWidget(sf)
@@ -178,7 +178,7 @@ class OrderDetailDialog(QDialog):
         if progress == "vehicle_assigned":
             box = QFrame()
             box.setStyleSheet(
-                "background: #1E3A5F; border: 1.5px solid #2563EB; border-radius: 12px;"
+                "background: #EFF6FF; border: 1.5px solid #2563EB; border-radius: 12px;"
             )
             bl = QVBoxLayout(box)
             bl.setContentsMargins(18, 14, 18, 14)
@@ -187,7 +187,7 @@ class OrderDetailDialog(QDialog):
                 "🚛 Перевозчик назначил транспорт.\n"
                 "Когда груз будет забран, подтвердите отправку — оплата будет заблокирована."
             )
-            info.setStyleSheet("color: #93C5FD; font-size: 10pt;")
+            info.setStyleSheet("color: #1D4ED8; font-size: 11pt;")
             info.setWordWrap(True)
             bl.addWidget(info)
 
@@ -201,7 +201,7 @@ class OrderDetailDialog(QDialog):
         elif progress == "arrived":
             box = QFrame()
             box.setStyleSheet(
-                "QFrame { background: #14532D; border: 1.5px solid #16A34A; border-radius: 12px; } QLabel { border: none; background: transparent; }"
+                "QFrame { background: #F0FDF4; border: 1.5px solid #16A34A; border-radius: 12px; } QLabel { border: none; background: transparent; }"
             )
             bl = QVBoxLayout(box)
             bl.setContentsMargins(18, 14, 18, 14)
@@ -210,7 +210,7 @@ class OrderDetailDialog(QDialog):
                 "📍 Перевозчик отметил прибытие.\n"
                 "Подтвердите получение груза — оплата будет переведена перевозчику."
             )
-            info.setStyleSheet("color: #86EFAC; font-size: 10pt;")
+            info.setStyleSheet("color: #15803D; font-size: 11pt;")
             info.setWordWrap(True)
             bl.addWidget(info)
 
@@ -224,8 +224,8 @@ class OrderDetailDialog(QDialog):
         elif progress == "dispatched":
             info = QLabel("📦 Груз отправлен, ожидается прибытие к месту назначения.")
             info.setStyleSheet(
-                "background: #0C2340; border: 1.5px solid #1D4ED8; border-radius: 10px; "
-                "color: #93C5FD; font-size: 10pt; padding: 12px 16px;"
+                "background: #EFF6FF; border: 1.5px solid #3B82F6; border-radius: 10px; "
+                "color: #1D4ED8; font-size: 11pt; padding: 12px 16px;"
             )
             info.setWordWrap(True)
             parent_layout.addWidget(info)
@@ -233,8 +233,8 @@ class OrderDetailDialog(QDialog):
         elif progress == "in_transit":
             info = QLabel("🚚 Груз в пути. Ожидайте прибытия к месту назначения.")
             info.setStyleSheet(
-                "background: #0C2340; border: 1.5px solid #1D4ED8; border-radius: 10px; "
-                "color: #93C5FD; font-size: 10pt; padding: 12px 16px;"
+                "background: #EFF6FF; border: 1.5px solid #3B82F6; border-radius: 10px; "
+                "color: #1D4ED8; font-size: 11pt; padding: 12px 16px;"
             )
             info.setWordWrap(True)
             parent_layout.addWidget(info)
@@ -278,7 +278,7 @@ class OrderDetailDialog(QDialog):
             for resp in responses:
                 rc = QFrame()
                 rc.setStyleSheet(
-                    f"QFrame {{ background: {C_CARD_BG}; border: 1.5px solid {C_BORDER}; border-radius: 10px; }} QLabel {{ border: none; background: transparent; }}"
+                    f"QFrame {{ background: {C_CARD_BG}; border: 1.5px solid {C_BORDER}; border-radius: 10px; }} QLabel {{ border: none; background: transparent; color: {C_TEXT}; }}"
                 )
                 rcl = QVBoxLayout(rc)
                 rcl.setContentsMargins(16, 14, 16, 14)
@@ -292,7 +292,7 @@ class OrderDetailDialog(QDialog):
 
                 cost_lbl = QLabel(fmt_money(resp.get("proposed_cost", 0)))
                 cost_lbl.setStyleSheet(
-                    "background: #1E3A5F; color: #60A5FA; border: 2px solid #3B82F6; "
+                    "background: #EFF6FF; color: #1D4ED8; border: 2px solid #2563EB; "
                     "border-radius: 8px; padding: 4px 14px; font-weight: 800; font-size: 14pt;"
                 )
                 top.addWidget(cost_lbl)
@@ -301,18 +301,18 @@ class OrderDetailDialog(QDialog):
                 rating = resp.get("company_rating", 0)
                 if rating:
                     rl2 = QLabel(stars_text(rating))
-                    rl2.setStyleSheet("color: #F59E0B; font-size: 10pt;")
+                    rl2.setStyleSheet("color: #F59E0B; font-size: 11pt;")
                     rcl.addWidget(rl2)
 
                 if resp.get("message"):
                     ml = QLabel(resp["message"])
                     ml.setWordWrap(True)
-                    ml.setStyleSheet(f"color: {C_TEXT_MUTED};")
+                    ml.setStyleSheet(f"color: {C_TEXT_MUTED}; font-size: 11pt;")
                     rcl.addWidget(ml)
 
                 if resp.get("estimated_days"):
                     dl2 = QLabel(f"⏱ Срок доставки: {resp['estimated_days']} дней")
-                    dl2.setStyleSheet(f"color: {C_TEXT_MUTED}; font-size: 9pt;")
+                    dl2.setStyleSheet(f"color: {C_TEXT_MUTED}; font-size: 10pt;")
                     rcl.addWidget(dl2)
 
                 if resp.get("status") == "pending" and self.order.get("status") == "new":
@@ -321,29 +321,29 @@ class OrderDetailDialog(QDialog):
                     btn_accept = QPushButton("✅ Принять")
                     btn_accept.setStyleSheet(
                         "QPushButton { background: #16A34A; color: white; border: 2px solid #22C55E; "
-                        "border-radius: 8px; font-size: 10pt; font-weight: 700; padding: 0 16px; }"
+                        "border-radius: 8px; font-size: 11pt; font-weight: 700; padding: 0 16px; }"
                         "QPushButton:hover { background: #15803D; }"
                     )
-                    btn_accept.setFixedSize(130, 38)
+                    btn_accept.setFixedSize(140, 40)
                     btn_accept.clicked.connect(lambda _, r=resp: self._accept_response(r))
                     btn_row.addWidget(btn_accept)
                     btn_reject = QPushButton("❌ Отклонить")
                     btn_reject.setStyleSheet(
                         "QPushButton { background: transparent; color: #EF4444; border: 2px solid #EF4444; "
-                        "border-radius: 8px; font-size: 10pt; font-weight: 700; padding: 0 16px; }"
+                        "border-radius: 8px; font-size: 11pt; font-weight: 700; padding: 0 16px; }"
                         "QPushButton:hover { background: rgba(239,68,68,0.14); }"
                     )
-                    btn_reject.setFixedSize(140, 38)
+                    btn_reject.setFixedSize(150, 40)
                     btn_reject.clicked.connect(lambda _, r=resp: self._reject_response(r))
                     btn_row.addWidget(btn_reject)
                     rcl.addLayout(btn_row)
                 else:
                     bg_map = {
-                        "pending":  ("#1E3A5F", "#93C5FD"),
-                        "accepted": ("#14532D", "#86EFAC"),
-                        "rejected": ("#450A0A", "#FCA5A5"),
+                        "pending":  ("#EFF6FF", "#1D4ED8"),
+                        "accepted": ("#F0FDF4", "#15803D"),
+                        "rejected": ("#FEF2F2", "#B91C1C"),
                     }
-                    bg, fg = bg_map.get(resp.get("status","pending"), ("#1E293B", C_TEXT))
+                    bg, fg = bg_map.get(resp.get("status","pending"), ("#F8FAFC", C_TEXT))
                     status_lbl = QLabel(
                         {"pending": "⏳ Ожидает", "accepted": "✅ Принят", "rejected": "❌ Отклонён"}
                         .get(resp.get("status", ""), resp.get("status", ""))
@@ -381,7 +381,7 @@ class OrderDetailDialog(QDialog):
         )
         if already:
             lbl = QLabel("✅ Вы уже оставили отзыв на этот заказ")
-            lbl.setStyleSheet("color: #86EFAC; font-size: 12pt; margin: 40px;")
+            lbl.setStyleSheet("color: #15803D; font-size: 12pt; margin: 40px;")
             lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
             l.addWidget(lbl)
             return w
@@ -411,7 +411,7 @@ class OrderDetailDialog(QDialog):
         # Check balance
         balance = UserModel.get_balance(self.current_user["id"])
         if cost > 0 and balance < cost:
-            QMessageBox.warning(
+            show_warning(
                 self, "Недостаточно средств",
                 f"На вашем балансе {fmt_money(balance)}, "
                 f"а стоимость перевозки составляет {fmt_money(cost)}.\n\n"
@@ -419,12 +419,11 @@ class OrderDetailDialog(QDialog):
             )
             return
 
-        if QMessageBox.question(
+        if not show_question(
             self, "Подтверждение",
             f"Принять отклик перевозчика на сумму {fmt_money(cost)}?\n"
-            f"С вашего баланса будет списано {fmt_money(cost)} (эскроу).",
-            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
-        ) == QMessageBox.StandardButton.No:
+            f"С вашего баланса будет списано {fmt_money(cost)} (эскроу)."
+        ):
             return
 
         ResponseModel.update_status(response["id"], "accepted")
@@ -446,7 +445,7 @@ class OrderDetailDialog(QDialog):
             f"Заказчик принял ваш отклик на заявку #{self.order['id']}. "
             "Назначьте транспорт и приступайте к работе."
         )
-        QMessageBox.information(
+        show_info(
             self, "Готово",
             f"Отклик принят! {fmt_money(cost)} заблокированы на эскроу.\n"
             "Заказ переведён в статус «В работе»."
@@ -460,16 +459,15 @@ class OrderDetailDialog(QDialog):
             "Отклик отклонён",
             f"Заказчик отклонил ваш отклик на заявку #{self.order['id']}"
         )
-        QMessageBox.information(self, "Готово", "Отклик отклонён.")
+        show_info(self, "Готово", "Отклик отклонён.")
         self.accept()
 
     def _confirm_dispatch(self):
         """Customer confirms cargo was picked up → move to in_transit."""
-        if QMessageBox.question(
+        if not show_question(
             self, "Подтверждение отправки",
-            "Подтвердите, что груз забран перевозчиком.",
-            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
-        ) == QMessageBox.StandardButton.No:
+            "Подтвердите, что груз забран перевозчиком."
+        ):
             return
 
         OrderModel.confirm_dispatch(self.order["id"])
@@ -480,7 +478,7 @@ class OrderDetailDialog(QDialog):
             f"Заказчик подтвердил, что груз по заявке #{self.order['id']} забран. "
             "Средства находятся в эскроу до подтверждения получения."
         )
-        QMessageBox.information(
+        show_info(
             self, "Готово",
             "Отправка подтверждена. Средства в эскроу.\n"
             "После доставки подтвердите получение груза."
@@ -489,12 +487,11 @@ class OrderDetailDialog(QDialog):
 
     def _confirm_arrival(self):
         """Customer confirms receipt → release payment to carrier's balance, complete order."""
-        if QMessageBox.question(
+        if not show_question(
             self, "Подтверждение получения",
             "Подтвердите получение груза.\n"
-            "Оплата будет переведена перевозчику, заказ завершится.",
-            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
-        ) == QMessageBox.StandardButton.No:
+            "Оплата будет переведена перевозчику, заказ завершится."
+        ):
             return
 
         OrderModel.confirm_arrival(self.order["id"])
@@ -517,7 +514,7 @@ class OrderDetailDialog(QDialog):
                 f"Заказчик подтвердил получение груза по заявке #{self.order['id']}. "
                 "Оплата переведена на ваш счёт."
             )
-        QMessageBox.information(
+        show_info(
             self, "Заказ завершён",
             "Получение подтверждено. Оплата переведена перевозчику.\n"
             "Вы можете оставить отзыв о перевозчике."
@@ -527,7 +524,7 @@ class OrderDetailDialog(QDialog):
     def _submit_review(self):
         rating = self._rev_stars.value()
         if rating == 0:
-            QMessageBox.warning(self, "Ошибка", "Выберите оценку")
+            show_warning(self, "Ошибка", "Выберите оценку")
             return
         ReviewModel.create(
             self.current_user["id"],
@@ -536,7 +533,7 @@ class OrderDetailDialog(QDialog):
             rating,
             self._rev_text.toPlainText().strip()
         )
-        QMessageBox.information(self, "Спасибо!", "Ваш отзыв опубликован.")
+        show_info(self, "Спасибо!", "Ваш отзыв опубликован.")
         self.accept()
 
 
@@ -580,7 +577,18 @@ class CustomerOrdersWindow(QWidget):
 
         self.cmb_filter = QComboBox()
         self.cmb_filter.addItems(["Все", "Новые", "В работе", "Завершённые", "Отменённые"])
-        self.cmb_filter.setFixedSize(150, 36)
+        self.cmb_filter.setFixedSize(170, 40)
+        self.cmb_filter.setStyleSheet(
+            "QComboBox { background: #FFFFFF; border: 2px solid #CBD5E1; border-radius: 8px; "
+            "color: #0F172A; padding: 6px 12px; font-size: 11pt; }"
+            "QComboBox:focus { border-color: #2563EB; background: #EFF6FF; }"
+            "QComboBox::drop-down { border: none; width: 26px; }"
+            "QComboBox QAbstractItemView { background: #FFFFFF; color: #0F172A; "
+            "border: 1.5px solid #CBD5E1; selection-background-color: #EFF6FF; "
+            "selection-color: #2563EB; font-size: 11pt; outline: none; }"
+            "QComboBox QAbstractItemView::item { color: #0F172A; padding: 8px 12px; min-height: 28px; }"
+            "QComboBox QAbstractItemView::item:selected { background: #EFF6FF; color: #2563EB; }"
+        )
         self.cmb_filter.currentIndexChanged.connect(self._filter)
         hdr_row.addWidget(self.cmb_filter)
 
@@ -720,7 +728,7 @@ class CustomerOrdersWindow(QWidget):
         if o.get("status") in ("in_progress", "completed"):
             prog_frame = QFrame()
             prog_frame.setStyleSheet(
-                f"QFrame {{ background: {C_CARD_BG}; border: 1.5px solid {C_BORDER}; border-radius: 12px; }} QLabel {{ border: none; background: transparent; }}"
+                f"QFrame {{ background: {C_CARD_BG}; border: 1.5px solid {C_BORDER}; border-radius: 12px; }} QLabel {{ border: none; background: transparent; color: {C_TEXT}; }}"
             )
             pfl = QVBoxLayout(prog_frame)
             pfl.setContentsMargins(16, 14, 16, 14)
@@ -737,7 +745,7 @@ class CustomerOrdersWindow(QWidget):
         # Info card
         grid = QFrame()
         grid.setStyleSheet(
-            f"QFrame {{ background: {C_CARD_BG}; border: 1.5px solid {C_BORDER}; border-radius: 12px; }} QLabel {{ border: none; background: transparent; }}"
+            f"QFrame {{ background: {C_CARD_BG}; border: 1.5px solid {C_BORDER}; border-radius: 12px; }} QLabel {{ border: none; background: transparent; color: {C_TEXT}; }}"
         )
         gl = QVBoxLayout(grid)
         gl.setContentsMargins(20, 16, 20, 16)
@@ -746,10 +754,10 @@ class CustomerOrdersWindow(QWidget):
         def row(label: str, value: str):
             r = QHBoxLayout()
             lb = QLabel(label + ":")
-            lb.setStyleSheet(f"color: {C_TEXT_MUTED}; font-size: 9pt; font-weight: 600;")
-            lb.setFixedWidth(160)
+            lb.setStyleSheet(f"color: {C_TEXT_MUTED}; font-size: 11pt; font-weight: 600;")
+            lb.setFixedWidth(190)
             vl = QLabel(value or "—")
-            vl.setStyleSheet(f"color: {C_TEXT}; font-size: 10pt;")
+            vl.setStyleSheet(f"color: {C_TEXT}; font-size: 12pt;")
             vl.setWordWrap(True)
             r.addWidget(lb)
             r.addWidget(vl)
@@ -777,7 +785,7 @@ class CustomerOrdersWindow(QWidget):
         if o.get("driver_name") or o.get("truck_number"):
             veh = QFrame()
             veh.setStyleSheet(
-                f"QFrame {{ background: {C_CARD_BG}; border: 1.5px solid {C_BORDER}; border-radius: 12px; }} QLabel {{ border: none; background: transparent; }}"
+                f"QFrame {{ background: {C_CARD_BG}; border: 1.5px solid {C_BORDER}; border-radius: 12px; }} QLabel {{ border: none; background: transparent; color: {C_TEXT}; }}"
             )
             vl2 = QVBoxLayout(veh)
             vl2.setContentsMargins(20, 14, 20, 14)
@@ -805,9 +813,10 @@ class CustomerOrdersWindow(QWidget):
         if o.get("comment"):
             cf = _section_frame()
             cfl = QVBoxLayout(cf)
-            cfl.setContentsMargins(16, 12, 16, 12)
+            cfl.setContentsMargins(16, 14, 16, 14)
             cfl.addWidget(_muted("Комментарий"))
             cm = QLabel(o["comment"])
+            cm.setStyleSheet(f"color: {C_TEXT}; font-size: 12pt;")
             cm.setWordWrap(True)
             cfl.addWidget(cm)
             l.addWidget(cf)
@@ -815,13 +824,13 @@ class CustomerOrdersWindow(QWidget):
         if o.get("special_requirements"):
             sf = QFrame()
             sf.setStyleSheet(
-                "QFrame { background: #2D2006; border: 1.5px solid #78350F; border-radius: 10px; } QLabel { border: none; background: transparent; }"
+                "QFrame { background: #FFFBEB; border: 1.5px solid #D97706; border-radius: 10px; } QLabel { border: none; background: transparent; }"
             )
             sfl = QVBoxLayout(sf)
-            sfl.setContentsMargins(16, 12, 16, 12)
+            sfl.setContentsMargins(16, 14, 16, 14)
             sfl.addWidget(_muted("⚠ Специальные требования"))
             sl = QLabel(o["special_requirements"])
-            sl.setStyleSheet("color: #FCD34D;")
+            sl.setStyleSheet("color: #92400E; font-size: 12pt;")
             sl.setWordWrap(True)
             sfl.addWidget(sl)
             l.addWidget(sf)
@@ -834,7 +843,7 @@ class CustomerOrdersWindow(QWidget):
         if progress == "vehicle_assigned":
             box = QFrame()
             box.setStyleSheet(
-                "background: #1E3A5F; border: 1.5px solid #2563EB; border-radius: 12px;"
+                "background: #EFF6FF; border: 1.5px solid #2563EB; border-radius: 12px;"
             )
             bl = QVBoxLayout(box)
             bl.setContentsMargins(18, 14, 18, 14)
@@ -843,7 +852,7 @@ class CustomerOrdersWindow(QWidget):
                 "🚛 Перевозчик назначил транспорт.\n"
                 "Когда груз будет забран, подтвердите отправку — оплата будет заблокирована."
             )
-            info.setStyleSheet("color: #93C5FD; font-size: 10pt;")
+            info.setStyleSheet("color: #1D4ED8; font-size: 10pt;")
             info.setWordWrap(True)
             bl.addWidget(info)
             btn = QPushButton("✅ Подтвердить отправку груза")
@@ -856,7 +865,7 @@ class CustomerOrdersWindow(QWidget):
         elif progress == "arrived":
             box = QFrame()
             box.setStyleSheet(
-                "QFrame { background: #14532D; border: 1.5px solid #16A34A; border-radius: 12px; } QLabel { border: none; background: transparent; }"
+                "QFrame { background: #F0FDF4; border: 1.5px solid #16A34A; border-radius: 12px; } QLabel { border: none; background: transparent; }"
             )
             bl = QVBoxLayout(box)
             bl.setContentsMargins(18, 14, 18, 14)
@@ -865,7 +874,7 @@ class CustomerOrdersWindow(QWidget):
                 "📍 Перевозчик отметил прибытие.\n"
                 "Подтвердите получение груза — оплата будет переведена перевозчику."
             )
-            info.setStyleSheet("color: #86EFAC; font-size: 10pt;")
+            info.setStyleSheet("color: #15803D; font-size: 10pt;")
             info.setWordWrap(True)
             bl.addWidget(info)
             btn = QPushButton("🏁 Подтвердить получение груза")
@@ -878,8 +887,8 @@ class CustomerOrdersWindow(QWidget):
         elif progress == "dispatched":
             info = QLabel("📦 Груз отправлен, ожидается прибытие к месту назначения.")
             info.setStyleSheet(
-                "background: #0C2340; border: 1.5px solid #1D4ED8; border-radius: 10px; "
-                "color: #93C5FD; font-size: 10pt; padding: 12px 16px;"
+                "background: #EFF6FF; border: 1.5px solid #3B82F6; border-radius: 10px; "
+                "color: #1D4ED8; font-size: 11pt; padding: 12px 16px;"
             )
             info.setWordWrap(True)
             parent_layout.addWidget(info)
@@ -887,8 +896,8 @@ class CustomerOrdersWindow(QWidget):
         elif progress == "in_transit":
             info = QLabel("🚚 Груз в пути. Ожидайте прибытия к месту назначения.")
             info.setStyleSheet(
-                "background: #0C2340; border: 1.5px solid #1D4ED8; border-radius: 10px; "
-                "color: #93C5FD; font-size: 10pt; padding: 12px 16px;"
+                "background: #EFF6FF; border: 1.5px solid #3B82F6; border-radius: 10px; "
+                "color: #1D4ED8; font-size: 11pt; padding: 12px 16px;"
             )
             info.setWordWrap(True)
             parent_layout.addWidget(info)
@@ -929,7 +938,7 @@ class CustomerOrdersWindow(QWidget):
             for resp in responses:
                 rc = QFrame()
                 rc.setStyleSheet(
-                    f"QFrame {{ background: {C_CARD_BG}; border: 1.5px solid {C_BORDER}; border-radius: 10px; }} QLabel {{ border: none; background: transparent; }}"
+                    f"QFrame {{ background: {C_CARD_BG}; border: 1.5px solid {C_BORDER}; border-radius: 10px; }} QLabel {{ border: none; background: transparent; color: {C_TEXT}; }}"
                 )
                 rcl = QVBoxLayout(rc)
                 rcl.setContentsMargins(16, 14, 16, 14)
@@ -939,13 +948,13 @@ class CustomerOrdersWindow(QWidget):
                 nm = QLabel(
                     resp.get("company_name") or resp.get("carrier_name") or "Перевозчик"
                 )
-                nm.setStyleSheet(f"font-weight: 700; font-size: 11pt; color: {C_TEXT};")
+                nm.setStyleSheet(f"font-weight: 700; font-size: 13pt; color: {C_TEXT};")
                 top.addWidget(nm)
                 top.addStretch()
                 cost_lbl = QLabel(fmt_money(resp.get("proposed_cost", 0)))
                 cost_lbl.setStyleSheet(
-                    "background: #1E3A5F; color: #60A5FA; border: 2px solid #3B82F6; "
-                    "border-radius: 8px; padding: 4px 14px; font-weight: 800; font-size: 14pt;"
+                    "background: #EFF6FF; color: #1D4ED8; border: 2px solid #2563EB; "
+                    "border-radius: 8px; padding: 4px 16px; font-weight: 800; font-size: 15pt;"
                 )
                 top.addWidget(cost_lbl)
                 rcl.addLayout(top)
@@ -953,18 +962,18 @@ class CustomerOrdersWindow(QWidget):
                 rating = resp.get("company_rating", 0)
                 if rating:
                     rl2 = QLabel(stars_text(rating))
-                    rl2.setStyleSheet("color: #F59E0B; font-size: 10pt;")
+                    rl2.setStyleSheet("color: #F59E0B; font-size: 12pt;")
                     rcl.addWidget(rl2)
 
                 if resp.get("message"):
                     ml = QLabel(resp["message"])
                     ml.setWordWrap(True)
-                    ml.setStyleSheet(f"color: {C_TEXT_MUTED};")
+                    ml.setStyleSheet(f"color: {C_TEXT}; font-size: 11pt;")
                     rcl.addWidget(ml)
 
                 if resp.get("estimated_days"):
                     dl2 = QLabel(f"⏱ Срок доставки: {resp['estimated_days']} дней")
-                    dl2.setStyleSheet(f"color: {C_TEXT_MUTED}; font-size: 9pt;")
+                    dl2.setStyleSheet(f"color: {C_TEXT_MUTED}; font-size: 11pt;")
                     rcl.addWidget(dl2)
 
                 if resp.get("status") == "pending" and order.get("status") == "new":
@@ -973,10 +982,10 @@ class CustomerOrdersWindow(QWidget):
                     btn_accept = QPushButton("✅ Принять")
                     btn_accept.setStyleSheet(
                         "QPushButton { background: #16A34A; color: white; border: 2px solid #22C55E; "
-                        "border-radius: 8px; font-size: 10pt; font-weight: 700; padding: 0 16px; }"
+                        "border-radius: 8px; font-size: 11pt; font-weight: 700; padding: 0 16px; }"
                         "QPushButton:hover { background: #15803D; }"
                     )
-                    btn_accept.setFixedSize(130, 38)
+                    btn_accept.setFixedSize(140, 40)
                     btn_accept.clicked.connect(
                         lambda _, r=resp: self._accept_response(order, r)
                     )
@@ -984,10 +993,10 @@ class CustomerOrdersWindow(QWidget):
                     btn_reject = QPushButton("❌ Отклонить")
                     btn_reject.setStyleSheet(
                         "QPushButton { background: transparent; color: #EF4444; border: 2px solid #EF4444; "
-                        "border-radius: 8px; font-size: 10pt; font-weight: 700; padding: 0 16px; }"
+                        "border-radius: 8px; font-size: 11pt; font-weight: 700; padding: 0 16px; }"
                         "QPushButton:hover { background: rgba(239,68,68,0.14); }"
                     )
-                    btn_reject.setFixedSize(140, 38)
+                    btn_reject.setFixedSize(150, 40)
                     btn_reject.clicked.connect(
                         lambda _, r=resp: self._reject_response(order, r)
                     )
@@ -995,11 +1004,11 @@ class CustomerOrdersWindow(QWidget):
                     rcl.addLayout(btn_row)
                 else:
                     bg_map = {
-                        "pending":  ("#1E3A5F", "#93C5FD"),
-                        "accepted": ("#14532D", "#86EFAC"),
-                        "rejected": ("#450A0A", "#FCA5A5"),
+                        "pending":  ("#EFF6FF", "#1D4ED8"),
+                        "accepted": ("#F0FDF4", "#15803D"),
+                        "rejected": ("#FEF2F2", "#B91C1C"),
                     }
-                    bg, fg = bg_map.get(resp.get("status", "pending"), ("#1E293B", C_TEXT))
+                    bg, fg = bg_map.get(resp.get("status", "pending"), ("#F8FAFC", C_TEXT_MUTED))
                     status_lbl = QLabel(
                         {"pending": "⏳ Ожидает",
                          "accepted": "✅ Принят",
@@ -1037,25 +1046,39 @@ class CustomerOrdersWindow(QWidget):
         )
         if already:
             lbl = QLabel("✅ Вы уже оставили отзыв на этот заказ")
-            lbl.setStyleSheet("color: #86EFAC; font-size: 12pt; margin: 40px;")
+            lbl.setStyleSheet("color: #15803D; font-size: 12pt; margin: 40px;")
             lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
             l.addWidget(lbl)
             return w
 
-        l.addWidget(_muted("Оцените перевозчика"))
+        rate_lbl = QLabel("Оцените перевозчика:")
+        rate_lbl.setStyleSheet(f"font-size: 13pt; font-weight: 600; color: {C_TEXT};")
+        l.addWidget(rate_lbl)
         self._rev_stars = StarRatingWidget(0, editable=True)
         l.addWidget(self._rev_stars)
 
-        l.addWidget(_muted("Комментарий"))
+        comm_lbl = QLabel("Комментарий (необязательно):")
+        comm_lbl.setStyleSheet(f"font-size: 12pt; font-weight: 600; color: {C_TEXT};")
+        l.addWidget(comm_lbl)
         self._rev_text = QTextEdit()
         self._rev_text.setPlaceholderText(
             "Расскажите о вашем опыте работы с перевозчиком..."
         )
-        self._rev_text.setFixedHeight(100)
+        self._rev_text.setFixedHeight(120)
+        self._rev_text.setStyleSheet(
+            "QTextEdit { background: #FFFFFF; border: 2px solid #CBD5E1; border-radius: 8px; "
+            "color: #0F172A; padding: 8px 12px; font-size: 12pt; }"
+            "QTextEdit:focus { border-color: #2563EB; background: #EFF6FF; }"
+        )
         l.addWidget(self._rev_text)
 
-        btn = QPushButton("Отправить отзыв")
-        btn.setFixedSize(180, 42)
+        btn = QPushButton("⭐ Отправить отзыв")
+        btn.setFixedSize(220, 48)
+        btn.setStyleSheet(
+            "QPushButton { background: #2563EB; color: white; border: none; "
+            "border-radius: 10px; font-size: 12pt; font-weight: 700; }"
+            "QPushButton:hover { background: #1D4ED8; }"
+        )
         btn.clicked.connect(lambda: self._submit_review(order))
         l.addWidget(btn)
         l.addStretch()
@@ -1067,7 +1090,7 @@ class CustomerOrdersWindow(QWidget):
         cost = response.get("proposed_cost", 0)
         balance = UserModel.get_balance(self.current_user["id"])
         if cost > 0 and balance < cost:
-            QMessageBox.warning(
+            show_warning(
                 self, "Недостаточно средств",
                 f"На вашем балансе {fmt_money(balance)}, "
                 f"а стоимость перевозки составляет {fmt_money(cost)}.\n\n"
@@ -1075,12 +1098,11 @@ class CustomerOrdersWindow(QWidget):
             )
             return
 
-        if QMessageBox.question(
+        if not show_question(
             self, "Подтверждение",
             f"Принять отклик перевозчика на сумму {fmt_money(cost)}?\n"
-            f"С вашего баланса будет списано {fmt_money(cost)} (эскроу).",
-            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
-        ) == QMessageBox.StandardButton.No:
+            f"С вашего баланса будет списано {fmt_money(cost)} (эскроу)."
+        ):
             return
 
         ResponseModel.update_status(response["id"], "accepted")
@@ -1101,7 +1123,7 @@ class CustomerOrdersWindow(QWidget):
             f"Заказчик принял ваш отклик на заявку #{order['id']}. "
             "Назначьте транспорт и приступайте к работе."
         )
-        QMessageBox.information(
+        show_info(
             self, "Готово",
             f"Отклик принят! {fmt_money(cost)} заблокированы на эскроу.\n"
             "Заказ переведён в статус «В работе»."
@@ -1115,15 +1137,14 @@ class CustomerOrdersWindow(QWidget):
             "Отклик отклонён",
             f"Заказчик отклонил ваш отклик на заявку #{order['id']}"
         )
-        QMessageBox.information(self, "Готово", "Отклик отклонён.")
+        show_info(self, "Готово", "Отклик отклонён.")
         self._go_back()
 
     def _confirm_dispatch(self, order: dict):
-        if QMessageBox.question(
+        if not show_question(
             self, "Подтверждение отправки",
-            "Подтвердите, что груз забран перевозчиком.",
-            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
-        ) == QMessageBox.StandardButton.No:
+            "Подтвердите, что груз забран перевозчиком."
+        ):
             return
 
         OrderModel.confirm_dispatch(order["id"])
@@ -1133,7 +1154,7 @@ class CustomerOrdersWindow(QWidget):
             f"Заказчик подтвердил, что груз по заявке #{order['id']} забран. "
             "Средства находятся в эскроу до подтверждения получения."
         )
-        QMessageBox.information(
+        show_info(
             self, "Готово",
             "Отправка подтверждена. Средства в эскроу.\n"
             "После доставки подтвердите получение груза."
@@ -1141,12 +1162,11 @@ class CustomerOrdersWindow(QWidget):
         self._go_back()
 
     def _confirm_arrival(self, order: dict):
-        if QMessageBox.question(
+        if not show_question(
             self, "Подтверждение получения",
             "Подтвердите получение груза.\n"
-            "Оплата будет переведена перевозчику, заказ завершится.",
-            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
-        ) == QMessageBox.StandardButton.No:
+            "Оплата будет переведена перевозчику, заказ завершится."
+        ):
             return
 
         OrderModel.confirm_arrival(order["id"])
@@ -1166,7 +1186,7 @@ class CustomerOrdersWindow(QWidget):
                 f"Заказчик подтвердил получение груза по заявке #{order['id']}. "
                 "Оплата переведена на ваш счёт."
             )
-        QMessageBox.information(
+        show_info(
             self, "Заказ завершён",
             "Получение подтверждено. Оплата переведена перевозчику.\n"
             "Вы можете оставить отзыв о перевозчике."
@@ -1176,7 +1196,7 @@ class CustomerOrdersWindow(QWidget):
     def _submit_review(self, order: dict):
         rating = self._rev_stars.value()
         if rating == 0:
-            QMessageBox.warning(self, "Ошибка", "Выберите оценку")
+            show_warning(self, "Ошибка", "Выберите оценку")
             return
         ReviewModel.create(
             self.current_user["id"],
@@ -1185,7 +1205,7 @@ class CustomerOrdersWindow(QWidget):
             rating,
             self._rev_text.toPlainText().strip()
         )
-        QMessageBox.information(self, "Спасибо!", "Ваш отзыв опубликован.")
+        show_info(self, "Спасибо!", "Ваш отзыв опубликован.")
         self._go_back()
 
     def _change_status(self, order_id: int, status: str):
@@ -1194,11 +1214,10 @@ class CustomerOrdersWindow(QWidget):
             "completed":   "завершить заказ",
             "cancelled":   "отменить заказ",
         }
-        if QMessageBox.question(
+        if show_question(
             self, "Подтверждение",
-            f"Вы хотите {labels.get(status, status)}?",
-            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
-        ) == QMessageBox.StandardButton.Yes:
+            f"Вы хотите {labels.get(status, status)}?"
+        ):
             OrderModel.update_status(order_id, status)
             self._load()
 
@@ -1211,7 +1230,7 @@ class CustomerOrdersWindow(QWidget):
 def _muted(text: str) -> QLabel:
     lbl = QLabel(text)
     lbl.setStyleSheet(
-        "color: #64748B; font-size: 9pt; font-weight: 700; text-transform: uppercase;"
+        "color: #64748B; font-size: 10pt; font-weight: 700; text-transform: uppercase;"
     )
     return lbl
 
@@ -1219,7 +1238,7 @@ def _muted(text: str) -> QLabel:
 def _section_frame() -> QFrame:
     f = QFrame()
     f.setStyleSheet(
-        f"QFrame {{ background: {C_CARD_BG}; border: 1.5px solid {C_BORDER}; border-radius: 10px; }} QLabel {{ border: none; background: transparent; }}"
+        f"QFrame {{ background: {C_CARD_BG}; border: 1.5px solid {C_BORDER}; border-radius: 10px; }} QLabel {{ border: none; background: transparent; color: {C_TEXT}; }}"
     )
     return f
 
@@ -1231,10 +1250,10 @@ def _row_lbl(label: str, value: str, value_color: str = C_TEXT) -> QWidget:
     hl.setContentsMargins(0, 0, 0, 0)
     hl.setSpacing(8)
     lb = QLabel(label + ":")
-    lb.setStyleSheet(f"color: {C_TEXT_MUTED}; font-size: 9pt; font-weight: 600;")
-    lb.setFixedWidth(130)
+    lb.setStyleSheet(f"color: {C_TEXT_MUTED}; font-size: 11pt; font-weight: 600;")
+    lb.setFixedWidth(160)
     vl = QLabel(value)
-    vl.setStyleSheet(f"color: {value_color}; font-size: 10pt;")
+    vl.setStyleSheet(f"color: {value_color}; font-size: 12pt;")
     vl.setWordWrap(True)
     hl.addWidget(lb)
     hl.addWidget(vl)

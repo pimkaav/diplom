@@ -107,14 +107,14 @@ class MapPickerDialog(QDialog):
         self._build()
 
     def _build(self):
-        self.setStyleSheet("background: #0F172A;")
+        self.setStyleSheet("background: #F1F5F9;")
         root = QVBoxLayout(self)
         root.setContentsMargins(0, 0, 0, 0)
         root.setSpacing(0)
 
         # Header
         hdr = QWidget()
-        hdr.setStyleSheet("background: #1E293B; border-bottom: 2px solid #334155;")
+        hdr.setStyleSheet("background: #FFFFFF; border-bottom: 2px solid #E2E8F0;")
         hdr.setFixedHeight(64)
         hl = QHBoxLayout(hdr)
         hl.setContentsMargins(24, 0, 24, 0)
@@ -122,7 +122,7 @@ class MapPickerDialog(QDialog):
         ico.setStyleSheet("font-size: 22pt; background: transparent;")
         hl.addWidget(ico)
         title = QLabel("Выбор маршрута перевозки")
-        title.setStyleSheet("color: #F1F5F9; font-size: 14pt; font-weight: 700; background: transparent;")
+        title.setStyleSheet("color: #0F172A; font-size: 14pt; font-weight: 700; background: transparent;")
         hl.addWidget(title)
         hl.addStretch()
         root.addWidget(hdr)
@@ -144,7 +144,7 @@ class MapPickerDialog(QDialog):
         from_fl = QVBoxLayout(from_card)
         from_fl.setContentsMargins(16, 16, 16, 16)
         from_fl.setSpacing(8)
-        from_fl.addWidget(_lbl("Город / населённый пункт:", "#94A3B8"))
+        from_fl.addWidget(_lbl("Город / населённый пункт:", "#64748B"))
         self.cmb_from = QComboBox()
         self.cmb_from.setEditable(True)
         self.cmb_from.addItems(CITIES)
@@ -182,7 +182,7 @@ class MapPickerDialog(QDialog):
         dist_fl.setContentsMargins(16, 14, 16, 14)
         dist_fl.setSpacing(12)
         self._dist_lbl = QLabel("Выберите города для расчёта")
-        self._dist_lbl.setStyleSheet("color: #94A3B8; font-size: 10pt; background: transparent;")
+        self._dist_lbl.setStyleSheet("color: #64748B; font-size: 10pt; background: transparent;")
         dist_fl.addWidget(self._dist_lbl)
         dist_fl.addStretch()
         self.spn_dist = QDoubleSpinBox()
@@ -193,8 +193,8 @@ class MapPickerDialog(QDialog):
         self.spn_dist.setFixedHeight(38)
         self.spn_dist.setFixedWidth(120)
         self.spn_dist.setStyleSheet(
-            "background: #1E293B; border: 1.5px solid #334155; border-radius: 8px; "
-            "color: #F1F5F9; padding: 6px 10px;"
+            "background: #FFFFFF; border: 1.5px solid #CBD5E1; border-radius: 8px; "
+            "color: #0F172A; padding: 6px 10px;"
         )
         dist_fl.addWidget(self.spn_dist)
         cl.addWidget(dist_card)
@@ -205,7 +205,7 @@ class MapPickerDialog(QDialog):
 
         # Bottom bar
         bar = QWidget()
-        bar.setStyleSheet("background: #1E293B; border-top: 1px solid #334155;")
+        bar.setStyleSheet("background: #FFFFFF; border-top: 1px solid #E2E8F0;")
         bar.setFixedHeight(60)
         bl = QHBoxLayout(bar)
         bl.setContentsMargins(20, 0, 20, 0)
@@ -229,7 +229,7 @@ class MapPickerDialog(QDialog):
     def _make_card(self, title: str, accent: str) -> QFrame:
         card = QFrame()
         card.setStyleSheet(
-            f"background: #1E293B; border: 1.5px solid {accent}33; border-radius: 12px;"
+            f"background: #FFFFFF; border: 1.5px solid {accent}; border-radius: 12px;"
         )
         vl = QVBoxLayout(card)
         vl.setContentsMargins(0, 0, 0, 0)
@@ -251,13 +251,13 @@ class MapPickerDialog(QDialog):
     def _combo_style(self, accent: str) -> str:
         return f"""
             QComboBox {{
-                background: #0F172A; border: 1.5px solid {accent}55;
-                border-radius: 8px; padding: 8px 12px; color: #F1F5F9; font-size: 11pt;
+                background: #FFFFFF; border: 1.5px solid #CBD5E1;
+                border-radius: 8px; padding: 8px 12px; color: #0F172A; font-size: 11pt;
             }}
             QComboBox:focus {{ border-color: {accent}; }}
             QComboBox QAbstractItemView {{
-                background: #1E293B; border: 1px solid #334155;
-                color: #F1F5F9; selection-background-color: {accent}33;
+                background: #FFFFFF; border: 1px solid #CBD5E1;
+                color: #0F172A; selection-background-color: {accent}33;
             }}
         """
 
@@ -268,21 +268,21 @@ class MapPickerDialog(QDialog):
             d = estimate_distance(a, b)
             self.spn_dist.setValue(d)
             self._dist_lbl.setText(f"~{d} км (приблизительно)")
-            self._dist_lbl.setStyleSheet("color: #60A5FA; font-size: 10pt; font-weight: 600; background: transparent;")
+            self._dist_lbl.setStyleSheet("color: #2563EB; font-size: 10pt; font-weight: 600; background: transparent;")
         else:
             self._dist_lbl.setText("Выберите города для расчёта")
-            self._dist_lbl.setStyleSheet("color: #94A3B8; font-size: 10pt; background: transparent;")
+            self._dist_lbl.setStyleSheet("color: #64748B; font-size: 10pt; background: transparent;")
 
     def _confirm(self):
         from_city = self.cmb_from.currentText().strip()
         to_city   = self.cmb_to.currentText().strip()
         if not from_city or not to_city:
-            from PyQt6.QtWidgets import QMessageBox
-            QMessageBox.warning(self, "Ошибка", "Выберите города отправки и назначения")
+            from ui.styles import show_warning
+            show_warning(self, "Ошибка", "Выберите города отправки и назначения")
             return
         if from_city == to_city:
-            from PyQt6.QtWidgets import QMessageBox
-            QMessageBox.warning(self, "Ошибка", "Город отправки и назначения не могут совпадать")
+            from ui.styles import show_warning
+            show_warning(self, "Ошибка", "Город отправки и назначения не могут совпадать")
             return
 
         data = {
@@ -298,7 +298,7 @@ class MapPickerDialog(QDialog):
         return self._result
 
 
-def _lbl(text: str, color: str = "#F1F5F9") -> QLabel:
+def _lbl(text: str, color: str = "#64748B") -> QLabel:
     lbl = QLabel(text)
     lbl.setStyleSheet(f"color: {color}; font-size: 9pt; background: transparent;")
     return lbl

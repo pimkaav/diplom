@@ -31,18 +31,18 @@ class MessageBubble(QFrame):
             )
         else:
             bubble.setStyleSheet(
-                "QFrame { background: #1E293B; border: 1px solid #334155; "
+                "QFrame { background: #F1F5F9; border: 1px solid #E2E8F0; "
                 "border-radius: 4px 16px 16px 16px; }"
             )
 
         bl = QVBoxLayout(bubble)
-        bl.setContentsMargins(14, 10, 14, 8)
-        bl.setSpacing(3)
+        bl.setContentsMargins(16, 12, 16, 10)
+        bl.setSpacing(5)
 
         if not is_mine:
             name_lbl = QLabel(msg.get("sender_name", ""))
             name_lbl.setStyleSheet(
-                f"font-weight: 700; font-size: 8pt; color: #60A5FA; background: transparent;"
+                f"font-weight: 700; font-size: 10pt; color: #2563EB; background: transparent;"
             )
             bl.addWidget(name_lbl)
 
@@ -50,11 +50,11 @@ class MessageBubble(QFrame):
         if content:
             text_lbl = QLabel(content)
             text_lbl.setStyleSheet(
-                f"color: {'#F1F5F9' if is_mine else C_TEXT}; font-size: 10pt; "
-                "background: transparent; line-height: 1.4;"
+                f"color: {'#FFFFFF' if is_mine else C_TEXT}; font-size: 12pt; "
+                "background: transparent; line-height: 1.5;"
             )
             text_lbl.setWordWrap(True)
-            text_lbl.setMaximumWidth(420)
+            text_lbl.setMaximumWidth(520)
             bl.addWidget(text_lbl)
 
         attachment = msg.get("attachment_path", "")
@@ -62,14 +62,14 @@ class MessageBubble(QFrame):
             fname = attachment.split("/")[-1].split("\\")[-1]
             att_lbl = QLabel(f"📎 {fname}")
             att_lbl.setStyleSheet(
-                "color: #93C5FD; font-size: 9pt; text-decoration: underline; background: transparent;"
+                "color: #93C5FD; font-size: 11pt; text-decoration: underline; background: transparent;"
             )
             bl.addWidget(att_lbl)
 
         time_lbl = QLabel(fmt_datetime(msg.get("created_at", "")))
         time_lbl.setStyleSheet(
-            f"color: {'rgba(255,255,255,0.5)' if is_mine else '#64748B'}; "
-            "font-size: 8pt; background: transparent;"
+            f"color: {'rgba(255,255,255,0.65)' if is_mine else '#64748B'}; "
+            "font-size: 9pt; background: transparent;"
         )
         time_lbl.setAlignment(
             Qt.AlignmentFlag.AlignRight if is_mine else Qt.AlignmentFlag.AlignLeft
@@ -122,7 +122,7 @@ class ChatWindow(QWidget):
         hhl = QHBoxLayout(hdr)
         hhl.setContentsMargins(16, 0, 16, 0)
         ht = QLabel("Сообщения")
-        ht.setStyleSheet("color: white; font-size: 13pt; font-weight: 700;")
+        ht.setStyleSheet("color: #0F172A; font-size: 13pt; font-weight: 700;")
         hhl.addWidget(ht)
         ll.addWidget(hdr)
 
@@ -139,11 +139,11 @@ class ChatWindow(QWidget):
                 color: {C_TEXT};
             }}
             QListWidget::item:hover {{
-                background: #243447;
+                background: #F1F5F9;
             }}
             QListWidget::item:selected {{
-                background: #1E3A5F;
-                color: #93C5FD;
+                background: #EFF6FF;
+                color: #2563EB;
                 border-left: 3px solid #2563EB;
             }}
         """)
@@ -206,15 +206,15 @@ class ChatWindow(QWidget):
         btn_attach.setStyleSheet("""
             QPushButton {
                 background: transparent;
-                border: 1.5px solid #475569;
+                border: 1.5px solid #CBD5E1;
                 border-radius: 8px;
                 font-size: 16pt;
-                color: #94A3B8;
+                color: #64748B;
             }
             QPushButton:hover {
-                border-color: #3B82F6;
-                color: #3B82F6;
-                background: rgba(59,130,246,0.08);
+                border-color: #2563EB;
+                color: #2563EB;
+                background: rgba(37,99,235,0.08);
             }
         """)
         btn_attach.clicked.connect(self._attach_file)
@@ -224,18 +224,18 @@ class ChatWindow(QWidget):
         self.inp_msg.setPlaceholderText("✏ Напишите сообщение...")
         self.inp_msg.setFixedHeight(42)
         self.inp_msg.setStyleSheet(
-            "QLineEdit { background: #1A2540; border: 2px solid #3B82F6; "
-            "border-radius: 8px; padding: 0px 14px; color: #F1F5F9; font-size: 10pt; }"
-            "QLineEdit:focus { border-color: #60A5FA; background: #1E3050; }"
+            "QLineEdit { background: #FFFFFF; border: 2px solid #CBD5E1; "
+            "border-radius: 8px; padding: 0px 14px; color: #0F172A; font-size: 10pt; }"
+            "QLineEdit:focus { border-color: #2563EB; border-width: 2px; background: #EFF6FF; }"
         )
         self.inp_msg.returnPressed.connect(self._send)
         ibl.addWidget(self.inp_msg)
 
         btn_send = QPushButton("Отправить")
-        btn_send.setFixedSize(110, 42)
+        btn_send.setFixedSize(140, 42)
         btn_send.setStyleSheet(
             "QPushButton { background: #2563EB; color: white; border: none; "
-            "border-radius: 8px; font-size: 10pt; font-weight: 600; }"
+            "border-radius: 8px; font-size: 11pt; font-weight: 600; padding: 0 16px; }"
             "QPushButton:hover { background: #1D4ED8; }"
             "QPushButton:pressed { background: #1E40AF; }"
         )

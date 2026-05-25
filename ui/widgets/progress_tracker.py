@@ -51,7 +51,7 @@ class ProgressTracker(QWidget):
                 line = QFrame()
                 line.setFixedHeight(3)
                 line.setStyleSheet(
-                    f"background: {'#22C55E' if is_done or is_active else '#334155'}; border-radius: 2px;"
+                    f"background: {'#16A34A' if is_done or is_active else '#E2E8F0'}; border-radius: 2px;"
                 )
                 row.addWidget(line, 1)
 
@@ -60,11 +60,11 @@ class ProgressTracker(QWidget):
             circle.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
             if is_active:
-                bg, color, border = "#2563EB", "white", "3px solid #60A5FA"
+                bg, color, border = "#2563EB", "white", "3px solid #93C5FD"
             elif is_done:
-                bg, color, border = "#22C55E", "white", "none"
+                bg, color, border = "#16A34A", "white", "none"
             else:
-                bg, color, border = "#1E293B", "#94A3B8", "2px solid #334155"
+                bg, color, border = "#F1F5F9", "#94A3B8", "2px solid #E2E8F0"
 
             circle.setStyleSheet(
                 f"background: {bg}; color: {color}; border-radius: 20px; "
@@ -76,7 +76,7 @@ class ProgressTracker(QWidget):
                 line2 = QFrame()
                 line2.setFixedHeight(3)
                 line2.setStyleSheet(
-                    f"background: {'#22C55E' if is_done else '#334155'}; border-radius: 2px;"
+                    f"background: {'#16A34A' if is_done else '#E2E8F0'}; border-radius: 2px;"
                 )
                 row.addWidget(line2, 1)
 
@@ -85,7 +85,7 @@ class ProgressTracker(QWidget):
             # Label
             lbl = QLabel(label)
             lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            font_color = "#F1F5F9" if is_active else ("#22C55E" if is_done else "#64748B")
+            font_color = "#2563EB" if is_active else ("#16A34A" if is_done else "#64748B")
             lbl.setStyleSheet(
                 f"color: {font_color}; font-size: 8pt; "
                 f"font-weight: {'700' if is_active else '400'};"

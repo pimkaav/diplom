@@ -3,11 +3,11 @@ from __future__ import annotations
 from PyQt6.QtWidgets import (
     QDialog, QVBoxLayout, QHBoxLayout, QLabel, QPushButton,
     QScrollArea, QFrame, QWidget, QTabWidget, QComboBox,
-    QMessageBox, QTextEdit
+    QTextEdit
 )
 from PyQt6.QtCore import Qt, pyqtSignal
 from database.models import ReviewModel, UserModel, OrderModel, NotificationModel
-from ui.styles import C_CARD_BG, C_BORDER, C_TEXT, C_TEXT_MUTED, C_PRIMARY, C_CONTENT_BG
+from ui.styles import C_CARD_BG, C_BORDER, C_TEXT, C_TEXT_MUTED, C_PRIMARY, C_CONTENT_BG, show_info
 from ui.widgets.star_rating import StarRatingWidget
 from utils.helpers import stars_text, fmt_datetime
 
@@ -52,7 +52,7 @@ class CarrierDetailDialog(QDialog):
         # Header card
         hdr = QFrame()
         hdr.setStyleSheet(
-            f"QFrame {{ background: {C_CARD_BG}; border: 1.5px solid {C_BORDER}; border-radius: 14px; }} QLabel {{ border: none; background: transparent; }}"
+            f"QFrame {{ background: {C_CARD_BG}; border: 1.5px solid {C_BORDER}; border-radius: 14px; }} QLabel {{ border: none; background: transparent; color: {C_TEXT}; }}"
         )
         hl = QHBoxLayout(hdr)
         hl.setContentsMargins(22, 20, 22, 20)
@@ -77,7 +77,7 @@ class CarrierDetailDialog(QDialog):
 
         if self.company.get("is_verified"):
             vl = QLabel("✓ Верифицированная компания")
-            vl.setStyleSheet(f"color: #86EFAC; font-size: 9pt; font-weight: 600;")
+            vl.setStyleSheet(f"color: #15803D; font-size: 9pt; font-weight: 600;")
             hinfo.addWidget(vl)
 
         hl.addLayout(hinfo)
@@ -115,7 +115,7 @@ class CarrierDetailDialog(QDialog):
         ]:
             f = QFrame()
             f.setStyleSheet(
-                f"QFrame {{ background: {C_CARD_BG}; border: 1.5px solid {C_BORDER}; border-radius: 10px; }} QLabel {{ border: none; background: transparent; }}"
+                f"QFrame {{ background: {C_CARD_BG}; border: 1.5px solid {C_BORDER}; border-radius: 10px; }} QLabel {{ border: none; background: transparent; color: {C_TEXT}; }}"
             )
             fl = QVBoxLayout(f)
             fl.setContentsMargins(14, 12, 14, 12)
@@ -124,7 +124,7 @@ class CarrierDetailDialog(QDialog):
             v.setStyleSheet(f"font-size: 16pt; font-weight: 800; color: {C_PRIMARY};")
             fl.addWidget(v)
             lb = QLabel(lbl)
-            lb.setStyleSheet(f"color: {C_TEXT_MUTED}; font-size: 9pt;")
+            lb.setStyleSheet(f"color: {C_TEXT_MUTED}; font-size: 10pt;")
             fl.addWidget(lb)
             stats.addWidget(f)
         l.addLayout(stats)
@@ -140,7 +140,7 @@ class CarrierDetailDialog(QDialog):
                 continue
             g = QFrame()
             g.setStyleSheet(
-                f"QFrame {{ background: {C_CARD_BG}; border: 1.5px solid {C_BORDER}; border-radius: 10px; }} QLabel {{ border: none; background: transparent; }}"
+                f"QFrame {{ background: {C_CARD_BG}; border: 1.5px solid {C_BORDER}; border-radius: 10px; }} QLabel {{ border: none; background: transparent; color: {C_TEXT}; }}"
             )
             gl = QVBoxLayout(g)
             gl.setContentsMargins(16, 12, 16, 12)
@@ -148,14 +148,14 @@ class CarrierDetailDialog(QDialog):
             gl.addWidget(_muted(label))
             t = QLabel(val)
             t.setWordWrap(True)
-            t.setStyleSheet(f"color: {C_TEXT}; font-size: 10pt;")
+            t.setStyleSheet(f"color: {C_TEXT}; font-size: 11pt;")
             gl.addWidget(t)
             l.addWidget(g)
 
         # Contacts
         contacts = QFrame()
         contacts.setStyleSheet(
-            f"QFrame {{ background: {C_CARD_BG}; border: 1.5px solid {C_BORDER}; border-radius: 10px; }} QLabel {{ border: none; background: transparent; }}"
+            f"QFrame {{ background: {C_CARD_BG}; border: 1.5px solid {C_BORDER}; border-radius: 10px; }} QLabel {{ border: none; background: transparent; color: {C_TEXT}; }}"
         )
         cl = QVBoxLayout(contacts)
         cl.setContentsMargins(16, 12, 16, 12)
@@ -164,7 +164,9 @@ class CarrierDetailDialog(QDialog):
         for icon, key in [("📞", "phone"), ("✉️", "email"), ("🌐", "website"), ("🏛", "inn")]:
             val = self.company.get(key, "")
             if val:
-                cl.addWidget(QLabel(f"{icon}  {val}"))
+                lbl = QLabel(f"{icon}  {val}")
+                lbl.setStyleSheet(f"color: {C_TEXT}; font-size: 11pt;")
+                cl.addWidget(lbl)
         l.addWidget(contacts)
 
         l.addStretch()
@@ -190,7 +192,7 @@ class CarrierDetailDialog(QDialog):
         if reviews:
             avg_block = QFrame()
             avg_block.setStyleSheet(
-                f"QFrame {{ background: {C_CARD_BG}; border: 1.5px solid {C_BORDER}; border-radius: 12px; }} QLabel {{ border: none; background: transparent; }}"
+                f"QFrame {{ background: {C_CARD_BG}; border: 1.5px solid {C_BORDER}; border-radius: 12px; }} QLabel {{ border: none; background: transparent; color: {C_TEXT}; }}"
             )
             ab = QHBoxLayout(avg_block)
             ab.setContentsMargins(20, 16, 20, 16)
@@ -213,7 +215,7 @@ class CarrierDetailDialog(QDialog):
         for rev in reviews:
             rc = QFrame()
             rc.setStyleSheet(
-                f"QFrame {{ background: {C_CARD_BG}; border: 1.5px solid {C_BORDER}; border-radius: 10px; }} QLabel {{ border: none; background: transparent; }}"
+                f"QFrame {{ background: {C_CARD_BG}; border: 1.5px solid {C_BORDER}; border-radius: 10px; }} QLabel {{ border: none; background: transparent; color: {C_TEXT}; }}"
             )
             rcl = QVBoxLayout(rc)
             rcl.setContentsMargins(16, 12, 16, 12)
@@ -231,11 +233,11 @@ class CarrierDetailDialog(QDialog):
             if rev.get("comment"):
                 cm = QLabel(rev["comment"])
                 cm.setWordWrap(True)
-                cm.setStyleSheet(f"color: {C_TEXT}; font-size: 10pt;")
+                cm.setStyleSheet(f"color: {C_TEXT}; font-size: 11pt;")
                 rcl.addWidget(cm)
 
             dt = QLabel(fmt_datetime(rev.get("created_at", "")))
-            dt.setStyleSheet(f"color: {C_TEXT_MUTED}; font-size: 8pt;")
+            dt.setStyleSheet(f"color: {C_TEXT_MUTED}; font-size: 9pt;")
             rcl.addWidget(dt)
             l.addWidget(rc)
 
@@ -254,17 +256,17 @@ class CarrierDetailDialog(QDialog):
     def _build_invite_tab(self) -> QWidget:
         """Customer picks one of their open orders and invites this carrier."""
         w = QWidget()
-        w.setStyleSheet("background: transparent;")
+        w.setStyleSheet(f"background: {C_CONTENT_BG};")
         l = QVBoxLayout(w)
         l.setContentsMargins(24, 24, 24, 24)
         l.setSpacing(16)
 
         l.addWidget(_label("Предложить заказ перевозчику",
-                           "font-size: 14pt; font-weight: 700;"))
+                           f"font-size: 14pt; font-weight: 700; color: {C_TEXT};"))
         l.addWidget(_label(
             f"Отправьте приглашение компании «{self.company.get('company_name','')}».\n"
             "Перевозчик получит уведомление и сможет сразу откликнуться на ваш заказ.",
-            f"color: {C_TEXT_MUTED}; font-size: 10pt;",
+            f"color: {C_TEXT_MUTED}; font-size: 11pt;",
             wrap=True,
         ))
 
@@ -273,34 +275,85 @@ class CarrierDetailDialog(QDialog):
 
         if not open_orders:
             info = QFrame()
-            info.setStyleSheet("QFrame { background: #2D2006; border: 1.5px solid #78350F; border-radius: 10px; } QLabel { border: none; background: transparent; }")
+            info.setStyleSheet(
+                "QFrame { background: #FFFBEB; border: 1.5px solid #D97706; border-radius: 10px; } "
+                "QLabel { border: none; background: transparent; color: #92400E; }"
+            )
             il = QVBoxLayout(info)
             il.setContentsMargins(16, 14, 16, 14)
             il.addWidget(_label(
                 "⚠ У вас нет открытых заявок.\nСначала создайте заявку на перевозку.",
-                "color: #FCD34D; font-size: 10pt;", wrap=True,
+                "color: #92400E; font-size: 11pt;", wrap=True,
             ))
             l.addWidget(info)
             l.addStretch()
             return w
 
-        l.addWidget(_muted("Выберите заявку:"))
+        # ── Order selection card ──────────────────────────────────
+        order_card = QFrame()
+        order_card.setStyleSheet(
+            f"QFrame {{ background: {C_CARD_BG}; border: 2px solid {C_BORDER}; border-radius: 10px; }} "
+            f"QLabel {{ border: none; background: transparent; color: {C_TEXT}; }}"
+        )
+        ocl = QVBoxLayout(order_card)
+        ocl.setContentsMargins(16, 14, 16, 14)
+        ocl.setSpacing(8)
+
+        order_lbl = QLabel("📋  Выберите заявку")
+        order_lbl.setStyleSheet(
+            f"font-size: 11pt; font-weight: 700; color: {C_TEXT}; background: transparent;"
+        )
+        ocl.addWidget(order_lbl)
+
         self._order_cmb = QComboBox()
-        self._order_cmb.setFixedHeight(40)
+        self._order_cmb.setFixedHeight(46)
+        self._order_cmb.setStyleSheet(
+            "QComboBox { background: #FFFFFF; border: 2px solid #2563EB; border-radius: 8px; "
+            "color: #0F172A; padding: 4px 12px; font-size: 11pt; }"
+            "QComboBox:focus { border-color: #1D4ED8; background: #EFF6FF; }"
+            "QComboBox::drop-down { border: none; width: 22px; background: transparent; }"
+            "QComboBox QAbstractItemView { background: #FFFFFF; color: #0F172A; "
+            "border: 1.5px solid #CBD5E1; selection-background-color: #EFF6FF; "
+            "selection-color: #2563EB; font-size: 11pt; outline: none; }"
+            "QComboBox QAbstractItemView::item { color: #0F172A; padding: 8px 12px; min-height: 30px; }"
+            "QComboBox QAbstractItemView::item:selected { background: #EFF6FF; color: #2563EB; }"
+        )
         for o in open_orders:
             self._order_cmb.addItem(
                 f"#{o['id']} — {o['title']} ({o['from_city']} → {o['to_city']})",
                 o["id"]
             )
-        l.addWidget(self._order_cmb)
+        ocl.addWidget(self._order_cmb)
+        l.addWidget(order_card)
 
-        l.addWidget(_muted("Сопроводительное сообщение (необязательно):"))
+        # ── Cover message card ────────────────────────────────────
+        msg_card = QFrame()
+        msg_card.setStyleSheet(
+            f"QFrame {{ background: {C_CARD_BG}; border: 2px solid {C_BORDER}; border-radius: 10px; }} "
+            f"QLabel {{ border: none; background: transparent; color: {C_TEXT}; }}"
+        )
+        mcl = QVBoxLayout(msg_card)
+        mcl.setContentsMargins(16, 14, 16, 14)
+        mcl.setSpacing(8)
+
+        msg_lbl = QLabel("✉️  Сопроводительное сообщение  (необязательно)")
+        msg_lbl.setStyleSheet(
+            f"font-size: 11pt; font-weight: 700; color: {C_TEXT}; background: transparent;"
+        )
+        mcl.addWidget(msg_lbl)
+
         self._msg_inp = QTextEdit()
         self._msg_inp.setPlaceholderText(
             "Здравствуйте! Хочу предложить вам перевозку груза. Пожалуйста, ознакомьтесь с заявкой..."
         )
-        self._msg_inp.setFixedHeight(90)
-        l.addWidget(self._msg_inp)
+        self._msg_inp.setFixedHeight(110)
+        self._msg_inp.setStyleSheet(
+            "QTextEdit { background: #FFFFFF; border: 2px solid #CBD5E1; border-radius: 8px; "
+            "color: #0F172A; padding: 8px 12px; font-size: 11pt; }"
+            "QTextEdit:focus { border-color: #2563EB; border-width: 2px; background: #EFF6FF; }"
+        )
+        mcl.addWidget(self._msg_inp)
+        l.addWidget(msg_card)
 
         btn_row = QHBoxLayout()
         btn_row.addStretch()
@@ -310,7 +363,7 @@ class CarrierDetailDialog(QDialog):
             "border-radius: 10px; font-size: 11pt; font-weight: 700; padding: 0 20px; }"
             "QPushButton:hover { background: #1D4ED8; border-color: #60A5FA; }"
         )
-        btn_send.setFixedSize(250, 46)
+        btn_send.setFixedSize(250, 48)
         btn_send.clicked.connect(self._send_invite)
         btn_row.addWidget(btn_send)
         l.addLayout(btn_row)
@@ -348,7 +401,7 @@ class CarrierDetailDialog(QDialog):
                 order_id=order_id,
             )
 
-        QMessageBox.information(
+        show_info(
             self, "Приглашение отправлено",
             "Перевозчик получил уведомление о вашем предложении.\n"
             "Он может откликнуться на заявку в обычном порядке."
@@ -368,6 +421,6 @@ def _label(text: str, style: str = "", wrap: bool = False) -> QLabel:
 def _muted(text: str) -> QLabel:
     lbl = QLabel(text)
     lbl.setStyleSheet(
-        "color: #64748B; font-size: 9pt; font-weight: 700; text-transform: uppercase;"
+        "color: #64748B; font-size: 10pt; font-weight: 700; text-transform: uppercase;"
     )
     return lbl

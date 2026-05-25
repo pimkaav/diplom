@@ -34,7 +34,7 @@ class BalanceDialog(QDialog):
         # Current balance card
         bal_card = QFrame()
         bal_card.setStyleSheet(
-            f"QFrame {{ background: {C_CARD_BG}; border: 1.5px solid {C_BORDER}; border-radius: 12px; }} QLabel {{ border: none; background: transparent; }}"
+            f"QFrame {{ background: {C_CARD_BG}; border: 1.5px solid {C_BORDER}; border-radius: 12px; }} QLabel {{ border: none; background: transparent; color: {C_TEXT}; }}"
         )
         bcl = QVBoxLayout(bal_card)
         bcl.setContentsMargins(20, 16, 20, 16)
@@ -53,9 +53,9 @@ class BalanceDialog(QDialog):
         for amount in [5000, 10000, 25000, 50000]:
             btn = QPushButton(fmt_money(amount))
             btn.setStyleSheet(
-                "QPushButton { background: #1E3A5F; color: #60A5FA; border: 2px solid #3B82F6; "
+                "QPushButton { background: #EFF6FF; color: #2563EB; border: 2px solid #93C5FD; "
                 "border-radius: 10px; font-size: 10pt; font-weight: 700; }"
-                "QPushButton:hover { background: #2563EB; color: white; }"
+                "QPushButton:hover { background: #2563EB; color: white; border-color: #2563EB; }"
             )
             btn.setFixedSize(96, 42)
             btn.clicked.connect(lambda _, a=amount: self._set_amount(a))
@@ -73,9 +73,9 @@ class BalanceDialog(QDialog):
         self.spn_amount.setValue(10000)
         self.spn_amount.setFixedHeight(48)
         self.spn_amount.setStyleSheet(
-            "QDoubleSpinBox { background: #0F172A; border: 2px solid #3B82F6; border-radius: 10px; "
-            "color: #F1F5F9; padding: 4px 12px; font-size: 14pt; font-weight: 700; }"
-            "QDoubleSpinBox:focus { border-color: #60A5FA; }"
+            "QDoubleSpinBox { background: #FFFFFF; border: 2px solid #2563EB; border-radius: 10px; "
+            "color: #0F172A; padding: 4px 12px; font-size: 14pt; font-weight: 700; }"
+            "QDoubleSpinBox:focus { border-color: #1D4ED8; background: #EFF6FF; }"
             "QDoubleSpinBox::up-button, QDoubleSpinBox::down-button { width: 22px; }"
         )
         l.addWidget(self.spn_amount)
@@ -96,9 +96,9 @@ class BalanceDialog(QDialog):
         btn_row.addStretch()
         btn_cancel = QPushButton("Отмена")
         btn_cancel.setStyleSheet(
-            "QPushButton { background: transparent; color: #94A3B8; border: 1.5px solid #4B6280; "
+            "QPushButton { background: transparent; color: #64748B; border: 1.5px solid #CBD5E1; "
             "border-radius: 8px; font-size: 10pt; font-weight: 600; }"
-            "QPushButton:hover { background: rgba(148,163,184,0.1); }"
+            "QPushButton:hover { background: #F1F5F9; }"
         )
         btn_cancel.setFixedSize(110, 42)
         btn_cancel.clicked.connect(self.reject)
@@ -124,8 +124,8 @@ class BalanceDialog(QDialog):
         self.user["balance"] = new_bal
         self._bal_lbl.setText(fmt_money(new_bal))
         self.balance_updated.emit(new_bal)
-        from PyQt6.QtWidgets import QMessageBox
-        QMessageBox.information(
+        from ui.styles import show_info
+        show_info(
             self, "Баланс пополнен",
             f"На ваш счёт зачислено {fmt_money(amount)}.\n"
             f"Текущий баланс: {fmt_money(new_bal)}"

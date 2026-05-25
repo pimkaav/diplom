@@ -1,10 +1,11 @@
 from PyQt6.QtWidgets import (
     QDialog, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit,
     QPushButton, QTextEdit, QSpinBox, QDoubleSpinBox,
-    QGroupBox, QFormLayout, QMessageBox, QScrollArea,
+    QGroupBox, QFormLayout, QScrollArea,
     QFrame, QWidget, QCheckBox, QTableWidget, QTableWidgetItem,
     QHeaderView, QComboBox
 )
+from ui.styles import show_info, show_warning, show_question
 from PyQt6.QtCore import Qt
 
 from database.models import CompanyModel, TruckModel
@@ -54,26 +55,48 @@ class CompanyProfileDialog(QDialog):
 
     # ── Reusable input styles ──────────────────────────────────────
     _sty_inp = (
-        "QLineEdit { background: #0F172A; border: 1.5px solid #4B6280; border-radius: 8px; "
-        "color: #F1F5F9; padding: 4px 10px; font-size: 10pt; }"
-        "QLineEdit:focus { border-color: #3B82F6; }"
+        "QLineEdit { background: #FFFFFF; border: 2px solid #CBD5E1; border-radius: 8px; "
+        "color: #0F172A; padding: 4px 12px; font-size: 11pt; }"
+        "QLineEdit:focus { border-color: #2563EB; background: #EFF6FF; }"
     )
     _sty_ta = (
-        "QTextEdit { background: #0F172A; border: 1.5px solid #4B6280; border-radius: 8px; "
-        "color: #F1F5F9; padding: 6px 10px; font-size: 10pt; }"
-        "QTextEdit:focus { border-color: #3B82F6; }"
+        "QTextEdit { background: #FFFFFF; border: 2px solid #CBD5E1; border-radius: 8px; "
+        "color: #0F172A; padding: 6px 12px; font-size: 11pt; }"
+        "QTextEdit:focus { border-color: #2563EB; background: #EFF6FF; }"
     )
     _sty_cmb = (
-        "QComboBox { background: #0F172A; border: 1.5px solid #4B6280; border-radius: 8px; "
-        "color: #F1F5F9; padding: 4px 10px; font-size: 10pt; }"
-        "QComboBox:focus { border-color: #3B82F6; }"
-        "QComboBox::drop-down { border: none; width: 20px; }"
-        "QComboBox QAbstractItemView { background: #1E293B; color: #F1F5F9; border: 1px solid #4B6280; }"
+        "QComboBox { background: #FFFFFF; border: 2px solid #CBD5E1; border-radius: 8px; "
+        "color: #0F172A; padding: 4px 12px; font-size: 11pt; }"
+        "QComboBox:focus { border-color: #2563EB; }"
+        "QComboBox::drop-down { border: none; width: 22px; background: transparent; }"
+        "QComboBox QAbstractItemView { background: #FFFFFF; color: #0F172A; "
+        "border: 1.5px solid #CBD5E1; selection-background-color: #EFF6FF; "
+        "selection-color: #2563EB; font-size: 11pt; outline: none; }"
+        "QComboBox QAbstractItemView::item { color: #0F172A; padding: 8px 12px; min-height: 28px; }"
+        "QComboBox QAbstractItemView::item:selected { background: #EFF6FF; color: #2563EB; }"
     )
     _sty_spn = (
-        "QSpinBox, QDoubleSpinBox { background: #0F172A; border: 1.5px solid #4B6280; "
-        "border-radius: 8px; color: #F1F5F9; padding: 4px 10px; font-size: 10pt; }"
-        "QSpinBox:focus, QDoubleSpinBox:focus { border-color: #3B82F6; }"
+        "QSpinBox, QDoubleSpinBox { background: #FFFFFF; border: 2px solid #CBD5E1; "
+        "border-radius: 8px; color: #0F172A; padding: 4px 12px; font-size: 11pt; }"
+        "QSpinBox:focus, QDoubleSpinBox:focus { border-color: #2563EB; background: #EFF6FF; }"
+    )
+
+    # ── GroupBox title style (explicit, always visible) ───────────
+    _sty_grp = (
+        "QGroupBox { background: #F1F5F9; border: 1.5px solid #E2E8F0; border-radius: 10px; "
+        "margin-top: 18px; padding-top: 14px; }"
+        "QGroupBox::title { subcontrol-origin: margin; subcontrol-position: top left; "
+        "left: 14px; top: -2px; padding: 0 6px; "
+        "color: #334155; font-size: 11pt; font-weight: 700; background: #F1F5F9; }"
+        "QLabel { background: transparent; border: none; color: #0F172A; }"
+    )
+    _sty_chk = (
+        "QCheckBox { color: #0F172A; font-size: 11pt; background: transparent; "
+        "border: none; spacing: 8px; }"
+        "QCheckBox::indicator { width: 18px; height: 18px; border: 2px solid #CBD5E1; "
+        "border-radius: 4px; background: #FFFFFF; }"
+        "QCheckBox::indicator:checked { background: #2563EB; border-color: #2563EB; }"
+        "QCheckBox::indicator:hover { border-color: #2563EB; }"
     )
 
     def _build(self):
@@ -84,29 +107,30 @@ class CompanyProfileDialog(QDialog):
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
         scroll.setFrameShape(QFrame.Shape.NoFrame)
-        scroll.setStyleSheet("background: transparent;")
+        scroll.setStyleSheet(f"background: {C_CONTENT_BG}; border: none;")
 
         w = QWidget()
-        w.setStyleSheet("background: transparent;")
+        w.setStyleSheet(f"background: {C_CONTENT_BG};")
         wl = QVBoxLayout(w)
         wl.setContentsMargins(24, 24, 24, 24)
         wl.setSpacing(16)
 
         hdr = QLabel("Профиль компании-перевозчика")
-        hdr.setStyleSheet(f"font-size: 18pt; font-weight: 800; color: {C_TEXT};")
+        hdr.setStyleSheet(f"font-size: 18pt; font-weight: 800; color: {C_TEXT}; background: transparent;")
         wl.addWidget(hdr)
 
         e = self.existing or {}
 
         # ── Основные данные ───────────────────────────────────────
         grp1 = QGroupBox("Основные данные")
+        grp1.setStyleSheet(self._sty_grp)
         fl1  = QFormLayout(grp1)
         fl1.setSpacing(12)
         fl1.setContentsMargins(16, 20, 16, 16)
 
         self.inp_name = QLineEdit(e.get("company_name", ""))
         self.inp_name.setPlaceholderText("ООО ТрансГрупп")
-        self.inp_name.setFixedHeight(38)
+        self.inp_name.setFixedHeight(42)
         self.inp_name.setStyleSheet(self._sty_inp)
         fl1.addRow("Название компании *", self.inp_name)
 
@@ -119,12 +143,12 @@ class CompanyProfileDialog(QDialog):
         row_inn = QHBoxLayout()
         self.inp_inn = QLineEdit(e.get("inn", ""))
         self.inp_inn.setPlaceholderText("1234567890")
-        self.inp_inn.setFixedHeight(38)
+        self.inp_inn.setFixedHeight(42)
         self.inp_inn.setStyleSheet(self._sty_inp)
         row_inn.addWidget(self.inp_inn)
         row_inn.addWidget(QLabel(" Лицензия:"))
         self.inp_license = QLineEdit(e.get("license_number", ""))
-        self.inp_license.setFixedHeight(38)
+        self.inp_license.setFixedHeight(42)
         self.inp_license.setStyleSheet(self._sty_inp)
         row_inn.addWidget(self.inp_license)
         fl1.addRow("ИНН", row_inn)
@@ -133,30 +157,46 @@ class CompanyProfileDialog(QDialog):
 
         # ── Ценообразование ───────────────────────────────────────
         grp2 = QGroupBox("Ценообразование и автопарк")
+        grp2.setStyleSheet(self._sty_grp)
         fl2  = QFormLayout(grp2)
         fl2.setSpacing(12)
         fl2.setContentsMargins(16, 20, 16, 16)
+
+        pricing_row = QHBoxLayout()
+        pricing_row.setSpacing(12)
 
         self.spn_pkm = QDoubleSpinBox()
         self.spn_pkm.setRange(1, 9999)
         self.spn_pkm.setSuffix(" ₽/км")
         self.spn_pkm.setDecimals(0)
         self.spn_pkm.setValue(e.get("price_per_km", 40))
-        self.spn_pkm.setFixedHeight(38)
+        self.spn_pkm.setFixedSize(140, 42)
         self.spn_pkm.setStyleSheet(self._sty_spn)
-        fl2.addRow("Стоимость за км *", self.spn_pkm)
+        pricing_row.addWidget(self.spn_pkm)
+
+        sep_lbl = QLabel("|")
+        sep_lbl.setStyleSheet("color: #94A3B8; font-size: 14pt; background: transparent;")
+        pricing_row.addWidget(sep_lbl)
+
+        trucks_lbl = QLabel("Автомобилей:")
+        trucks_lbl.setStyleSheet("color: #64748B; font-size: 10pt; background: transparent;")
+        pricing_row.addWidget(trucks_lbl)
 
         self.spn_trucks = QSpinBox()
         self.spn_trucks.setRange(0, 9999)
         self.spn_trucks.setValue(e.get("truck_count", 0))
-        self.spn_trucks.setFixedHeight(38)
+        self.spn_trucks.setFixedSize(100, 42)
         self.spn_trucks.setStyleSheet(self._sty_spn)
-        fl2.addRow("Кол-во автомобилей (всего)", self.spn_trucks)
+        pricing_row.addWidget(self.spn_trucks)
+        pricing_row.addStretch()
+
+        fl2.addRow("Цена/км  ·  Парк", pricing_row)
 
         wl.addWidget(grp2)
 
         # ── Типы транспорта ───────────────────────────────────────
         grp3 = QGroupBox("Типы транспорта")
+        grp3.setStyleSheet(self._sty_grp)
         gl3  = QVBoxLayout(grp3)
         gl3.setContentsMargins(16, 20, 16, 16)
         gl3.setSpacing(6)
@@ -172,7 +212,7 @@ class CompanyProfileDialog(QDialog):
                 gl3.addLayout(row_l)
             cb = QCheckBox(cat)
             cb.setChecked(cat in existing_cats)
-            cb.setStyleSheet("background: transparent;")
+            cb.setStyleSheet(self._sty_chk)
             self._cat_checks.append(cb)
             row_l.addWidget(cb)
         if len(TRUCK_CATEGORIES) % 2 == 1 and row_l:
@@ -182,6 +222,7 @@ class CompanyProfileDialog(QDialog):
 
         # ── Автопарк ─────────────────────────────────────────────
         fleet_grp = QGroupBox("Автопарк (конкретные машины)")
+        fleet_grp.setStyleSheet(self._sty_grp)
         fleet_vl  = QVBoxLayout(fleet_grp)
         fleet_vl.setContentsMargins(16, 16, 16, 16)
         fleet_vl.setSpacing(12)
@@ -198,13 +239,23 @@ class CompanyProfileDialog(QDialog):
         self._truck_table.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
         self._truck_table.verticalHeader().setVisible(False)
         self._truck_table.setAlternatingRowColors(True)
-        self._truck_table.setFixedHeight(180)
+        self._truck_table.setFixedHeight(200)
+        self._truck_table.setStyleSheet("""
+            QTableWidget { background: #FFFFFF; alternate-background-color: #F8FAFC;
+                border: 1px solid #E2E8F0; border-radius: 8px;
+                gridline-color: #E2E8F0; color: #0F172A; font-size: 11pt; outline: none; }
+            QTableWidget::item { padding: 6px 10px; border: none; color: #0F172A; }
+            QTableWidget::item:selected { background: #EFF6FF; color: #1D4ED8; }
+            QHeaderView::section { background: #F1F5F9; color: #334155; font-weight: 700;
+                font-size: 10pt; padding: 7px 10px; border: none;
+                border-bottom: 2px solid #E2E8F0; border-right: 1px solid #E2E8F0; }
+        """)
         fleet_vl.addWidget(self._truck_table)
 
         # Add truck form
         add_frame = QFrame()
         add_frame.setStyleSheet(
-            f"QFrame {{ background: {C_CARD_BG}; border: 1.5px solid {C_BORDER}; border-radius: 10px; }} QLabel {{ border: none; background: transparent; }}"
+            f"QFrame {{ background: {C_CARD_BG}; border: 1.5px solid {C_BORDER}; border-radius: 10px; }} QLabel {{ border: none; background: transparent; color: {C_TEXT}; }}"
         )
         add_fl = QVBoxLayout(add_frame)
         add_fl.setContentsMargins(14, 12, 14, 12)
@@ -220,22 +271,22 @@ class CompanyProfileDialog(QDialog):
         self._inp_brand = QComboBox()
         self._inp_brand.setEditable(True)
         self._inp_brand.addItems(TRUCK_BRANDS)
-        self._inp_brand.setFixedHeight(36)
+        self._inp_brand.setFixedHeight(40)
         self._inp_brand.setPlaceholderText("Марка")
         self._inp_brand.setStyleSheet(self._sty_cmb)
         row1.addWidget(self._inp_brand)
 
         self._inp_model = QLineEdit()
         self._inp_model.setPlaceholderText("Модель (напр. Actros 1845)")
-        self._inp_model.setFixedHeight(36)
+        self._inp_model.setFixedHeight(40)
         self._inp_model.setStyleSheet(self._sty_inp)
         row1.addWidget(self._inp_model)
 
         self._inp_year = QSpinBox()
         self._inp_year.setRange(2000, 2026)
         self._inp_year.setValue(2022)
-        self._inp_year.setFixedWidth(90)
-        self._inp_year.setFixedHeight(36)
+        self._inp_year.setFixedWidth(100)
+        self._inp_year.setFixedHeight(40)
         self._inp_year.setStyleSheet(self._sty_spn)
         row1.addWidget(self._inp_year)
         add_fl.addLayout(row1)
@@ -245,13 +296,13 @@ class CompanyProfileDialog(QDialog):
 
         self._inp_plate = QLineEdit()
         self._inp_plate.setPlaceholderText("Гос. номер (А 123 МК 77)")
-        self._inp_plate.setFixedHeight(36)
+        self._inp_plate.setFixedHeight(40)
         self._inp_plate.setStyleSheet(self._sty_inp)
         row2.addWidget(self._inp_plate)
 
         self._inp_cargo_type = QComboBox()
         self._inp_cargo_type.addItems(CARGO_TYPES_TRUCK)
-        self._inp_cargo_type.setFixedHeight(36)
+        self._inp_cargo_type.setFixedHeight(40)
         self._inp_cargo_type.setStyleSheet(self._sty_cmb)
         row2.addWidget(self._inp_cargo_type)
 
@@ -260,8 +311,8 @@ class CompanyProfileDialog(QDialog):
         self._inp_capacity.setValue(20.0)
         self._inp_capacity.setSuffix(" т")
         self._inp_capacity.setDecimals(1)
-        self._inp_capacity.setFixedWidth(100)
-        self._inp_capacity.setFixedHeight(36)
+        self._inp_capacity.setFixedWidth(110)
+        self._inp_capacity.setFixedHeight(40)
         self._inp_capacity.setStyleSheet(self._sty_spn)
         row2.addWidget(self._inp_capacity)
 
@@ -281,13 +332,14 @@ class CompanyProfileDialog(QDialog):
 
         # ── Регионы ───────────────────────────────────────────────
         grp4 = QGroupBox("Регионы работы")
+        grp4.setStyleSheet(self._sty_grp)
         fl4  = QFormLayout(grp4)
         fl4.setSpacing(12)
         fl4.setContentsMargins(16, 20, 16, 16)
 
         self.inp_cities = QLineEdit(e.get("operating_cities", ""))
         self.inp_cities.setPlaceholderText("Москва, Санкт-Петербург, Екатеринбург...")
-        self.inp_cities.setFixedHeight(38)
+        self.inp_cities.setFixedHeight(42)
         self.inp_cities.setStyleSheet(self._sty_inp)
         fl4.addRow("Города / Регионы работы", self.inp_cities)
 
@@ -295,25 +347,26 @@ class CompanyProfileDialog(QDialog):
 
         # ── Контакты ──────────────────────────────────────────────
         grp5 = QGroupBox("Контактная информация")
+        grp5.setStyleSheet(self._sty_grp)
         fl5  = QFormLayout(grp5)
         fl5.setSpacing(12)
         fl5.setContentsMargins(16, 20, 16, 16)
 
         self.inp_phone = QLineEdit(e.get("phone", ""))
         self.inp_phone.setPlaceholderText("+7 (___) ___-__-__")
-        self.inp_phone.setFixedHeight(38)
+        self.inp_phone.setFixedHeight(42)
         self.inp_phone.setStyleSheet(self._sty_inp)
         fl5.addRow("Телефон", self.inp_phone)
 
         self.inp_email = QLineEdit(e.get("email", ""))
         self.inp_email.setPlaceholderText("info@company.ru")
-        self.inp_email.setFixedHeight(38)
+        self.inp_email.setFixedHeight(42)
         self.inp_email.setStyleSheet(self._sty_inp)
         fl5.addRow("Email", self.inp_email)
 
         self.inp_website = QLineEdit(e.get("website", ""))
         self.inp_website.setPlaceholderText("https://company.ru")
-        self.inp_website.setFixedHeight(38)
+        self.inp_website.setFixedHeight(42)
         self.inp_website.setStyleSheet(self._sty_inp)
         fl5.addRow("Сайт", self.inp_website)
 
@@ -324,9 +377,9 @@ class CompanyProfileDialog(QDialog):
         btn_row.addStretch()
         btn_cancel = QPushButton("Отмена")
         btn_cancel.setStyleSheet(
-            "QPushButton { background: transparent; color: #94A3B8; border: 1.5px solid #4B6280; "
+            "QPushButton { background: transparent; color: #64748B; border: 1.5px solid #CBD5E1; "
             "border-radius: 8px; font-size: 10pt; font-weight: 600; }"
-            "QPushButton:hover { background: rgba(148,163,184,0.1); }"
+            "QPushButton:hover { background: #F1F5F9; }"
         )
         btn_cancel.setFixedSize(120, 42)
         btn_cancel.clicked.connect(self.reject)
@@ -375,7 +428,7 @@ class CompanyProfileDialog(QDialog):
         brand = self._inp_brand.currentText().strip()
         model = self._inp_model.text().strip()
         if not brand or not model:
-            QMessageBox.warning(self, "Ошибка", "Введите марку и модель автомобиля")
+            show_warning(self, "Ошибка", "Введите марку и модель автомобиля")
             return
         TruckModel.add(
             self.user_id, brand, model,
@@ -390,17 +443,14 @@ class CompanyProfileDialog(QDialog):
         self._load_trucks()
 
     def _del_truck(self, truck_id: int):
-        if QMessageBox.question(
-            self, "Удалить?", "Удалить автомобиль из автопарка?",
-            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
-        ) == QMessageBox.StandardButton.Yes:
+        if show_question(self, "Удалить?", "Удалить автомобиль из автопарка?"):
             TruckModel.delete(truck_id)
             self._load_trucks()
 
     def _save(self):
         name = self.inp_name.text().strip()
         if not name:
-            QMessageBox.warning(self, "Ошибка", "Введите название компании")
+            show_warning(self, "Ошибка", "Введите название компании")
             return
 
         selected_cats = [cb.text() for cb in self._cat_checks if cb.isChecked()]
@@ -421,5 +471,5 @@ class CompanyProfileDialog(QDialog):
         }
 
         CompanyModel.upsert(self.user_id, data)
-        QMessageBox.information(self, "Готово", "Профиль компании сохранён успешно!")
+        show_info(self, "Готово", "Профиль компании сохранён успешно!")
         self.accept()
